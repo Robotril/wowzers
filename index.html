@@ -97,6 +97,9 @@
   .of[aria-pressed="true"] { border-color:var(--mango); color:var(--mango); }
   .of:disabled { opacity:.55; cursor:default; }
   .of svg.i { width:1em; height:1em; }
+  #maplist { display:contents; }
+  .map:disabled { opacity:.5; cursor:default; border-style:dashed; }
+  .map small { font-size:.72rem; opacity:.9; }
   .maps { display:flex; flex-wrap:wrap; justify-content:center; gap:.4rem; }
   .map { display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .8rem; border-radius:999px; font-size:.88rem;
     border:2px solid rgba(255,244,224,.22); background:rgba(42,22,64,.45); transition:background .2s, border-color .2s; }
@@ -154,6 +157,7 @@
   <symbol id="i-drum" viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7" ry="2.6"/><path d="M5 7v9c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6V7M5 9l14 6M19 9L5 15M4 3l5 3.5M20 3l-5 3.5"/></symbol>
   <symbol id="i-anchor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v13M8 11h8M4 13c0 4 3.6 7 8 7s8-3 8-7M4 13l-1.5 1.5M20 13l1.5 1.5"/></symbol>
   <symbol id="i-pig" viewBox="0 0 24 24"><path d="M5 11c0-3.5 3-6 7-6s7 2.5 7 6v2c0 3.3-3 6-7 6s-7-2.7-7-6z"/><path d="M6 7L4.5 4.5 8 5.5M18 7l1.5-2.5-3.5 1"/><ellipse cx="12" cy="14" rx="2.6" ry="1.8"/><path d="M11 14h0M13 14h0M9 10.5h0M15 10.5h0"/></symbol>
+  <symbol id="i-split" viewBox="0 0 24 24"><path d="M12 21v-7M12 14L6 8M12 14l6-6M6 8H3V5M6 8V5H3M18 8h3V5M18 8V5h3"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol>
   <symbol id="i-owl" viewBox="0 0 24 24"><path d="M6 4l2.5 3h7L18 4v9a6 6 0 01-12 0z"/><circle cx="9.5" cy="11" r="1.8"/><circle cx="14.5" cy="11" r="1.8"/><path d="M11 14.5l1 1.2 1-1.2"/></symbol>
   <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
@@ -196,14 +200,7 @@
       </div>
       <div class="outfits" id="outfits" role="group" aria-label="Outfit"></div>
       <div class="maps" role="group" aria-label="Map">
-        <button class="map" data-m="mix"><svg class="i"><use href="#i-mix"/></svg>Mix</button>
-        <button class="map" data-m="beach"><svg class="i"><use href="#i-wave"/></svg>Shoreline</button>
-        <button class="map" data-m="street"><svg class="i"><use href="#i-street"/></svg>Bay Street</button>
-        <button class="map" data-m="forest"><svg class="i"><use href="#i-leaf"/></svg>Mangrove</button>
-        <button class="map" data-m="ocean"><svg class="i"><use href="#i-shell"/></svg>Coral Reef</button>
-        <button class="map" data-m="junk"><svg class="i"><use href="#i-drum"/></svg>Junkanoo</button>
-        <button class="map" data-m="wreck"><svg class="i"><use href="#i-anchor"/></svg>Shipwreck</button>
-        <button class="map" data-m="pigs"><svg class="i"><use href="#i-pig"/></svg>Pig Beach</button>
+        <span id="maplist"></span>
       </div>
       <button class="play display" id="btn"><svg class="i"><use href="#i-play"/></svg>Play</button>
       <div class="keys">← → change lanes and turn · ↑ jump · ↓ slide · swipe on mobile</div>
@@ -657,13 +654,24 @@ window.__boot = function () {
   };
   const THEME_KEYS = Object.keys(THEMES);
   const rnd = (a, b) => a + R() * (b - a), pickOf = a => a[(R() * a.length) | 0];
-  const pickTheme = cur => THEMES[mapSel] ? mapSel : pickOf(THEME_KEYS.filter(k => k !== cur));
+  // maps unlock by personal best; Shoreline and Bay Street are free. Mix only rotates through maps you have unlocked.
+  const MAPS = [["mix", "mix", "Mix", 0], ["beach", "wave", "Shoreline", 0], ["street", "street", "Bay Street", 0], ["forest", "leaf", "Mangrove", 1000],
+                ["ocean", "shell", "Coral Reef", 2500], ["junk", "drum", "Junkanoo", 4000], ["wreck", "anchor", "Shipwreck", 6500], ["pigs", "pig", "Pig Beach", 10000]];
+  const MAPREQ = Object.fromEntries(MAPS.map(m => [m[0], m[3]]));
+  const mapOpen = k => best >= (MAPREQ[k] || 0), openThemes = () => THEME_KEYS.filter(mapOpen);
+  const pickTheme = cur => THEMES[mapSel] && mapOpen(mapSel) ? mapSel : pickOf(openThemes().filter(k => k !== cur).concat(openThemes().length < 2 ? openThemes() : []));
+  const mapList = $("maplist");
+  function renderMaps() {
+    mapList.innerHTML = MAPS.map(([id, ic, name, req]) => { const locked = !mapOpen(id);
+      return `<button class="map" data-m="${id}" aria-pressed="${mapSel === id}"${locked ? ` disabled aria-label="${name}, unlocks at ${req.toLocaleString()} meters"` : ""}><svg class="i"><use href="#i-${locked ? "lock" : ic}"/></svg>${name}${locked ? ` <small>${req.toLocaleString()} m</small>` : ""}</button>`; }).join("");
+  }
   function setMap(m) {
-    mapSel = THEMES[m] ? m : "mix"; try { localStorage.setItem("bbMap", mapSel); } catch (e) {}
-    document.querySelectorAll(".map[data-m]").forEach(b => b.setAttribute("aria-pressed", b.dataset.m === mapSel));
+    if (m !== "mix" && THEMES[m] && !mapOpen(m)) return;
+    mapSel = THEMES[m] && mapOpen(m) ? m : "mix"; try { localStorage.setItem("bbMap", mapSel); } catch (e) {}
+    renderMaps();
     if (mode === "menu" && S) reset();   // show the chosen map behind the menu
   }
-  document.querySelectorAll(".map[data-m]").forEach(b => b.addEventListener("click", () => setMap(b.dataset.m)));
+  mapList.addEventListener("click", e => { const b = e.target.closest(".map"); if (b && !b.disabled) setMap(b.dataset.m); });
   const S2 = r => new T.SphereGeometry(r, 7, 5);
 
   // Merge every plain mesh in a group into one mesh per material, so a whole stretch of road costs only a handful of draw calls.
@@ -1195,10 +1203,10 @@ window.__boot = function () {
     legs.forEach(l => killObj(l.g)); legs = []; if (S && S.nextLeg) killObj(S.nextLeg.g);
     obs.forEach(o => scene.remove(o.m)); obs = []; if (S && S.q && S.q.obj) scene.remove(S.q.obj); clearFx();
     S = { dist: 0, v: 14, lane: 0, target: 0, h: 0, vy: 0, slide: 0, t: 0, lean: 0, gap: .6, inv: 0, slow: 0, shake: 0, pending: 0, waterZ: 0, sink: 0,
-          legT: 0, zoneT: 0, nextLeg: null, nextTheme: "beach", ts: 1, q: null, qAt: 70 + R() * 40, swing: 0, bonus: 0, laneT: -9, slideT: -9, nmSlow: 0, swoop: null, swoopAt: 12 + R() * 6, cyc: .05 };
+          legT: 0, zoneT: 0, nextLeg: null, nextTheme: "beach", ts: 1, q: null, qAt: 70 + R() * 40, swing: 0, tq: null, bonus: 0, laneT: -9, slideT: -9, nmSlow: 0, swoop: null, swoopAt: 12 + R() * 6, cyc: .05 };
     dcam = null;
     const qTheme = new URLSearchParams(location.search).get("theme");
-    leg = makeLeg(130, 14, qTheme in THEMES ? qTheme : THEMES[mapSel] ? mapSel : pickOf(THEME_KEYS)); scene.add(leg.g); legs.push(leg); populate(-40, jzNow() + 24); seedSharks(); camYaw = 0; pYaw = 0;
+    leg = makeLeg(130, 14, qTheme in THEMES ? qTheme : THEMES[mapSel] && mapOpen(mapSel) ? mapSel : pickOf(openThemes())); scene.add(leg.g); legs.push(leg); populate(-40, jzNow() + 24); seedSharks(); camYaw = 0; pYaw = 0;
     S.nextTheme = pickTheme(leg.theme); hint.classList.add("hidden"); zone.style.opacity = 0; zoneOp = 0;
     P.position.set(0, 0, 0); P.rotation.set(0, 0, 0); P.scale.set(1, 1, 1);
   }
@@ -1227,7 +1235,7 @@ window.__boot = function () {
     leg = S.nextLeg || makeLeg(110 + R() * 60, 0, S.nextTheme); S.nextLeg = null; leg.g.position.set(0, 0, -PH); scene.add(leg.g); legs.push(leg);
     populate(-30, jzNow() + 24);
     S.nextTheme = pickTheme(leg.theme); S.legT = S.t; if (leg.theme !== old.theme) showZone();
-    camYaw += th; pYaw += th; S.lane = 0; S.target = 0; S.lean = 0; S.pending = 0; S.qAt = Math.max(S.qAt, S.dist + 35);
+    camYaw += th; pYaw += th; S.lane = 0; S.target = 0; S.lean = 0; S.pending = 0; S.tq = null; S.ts = 1; S.qAt = Math.max(S.qAt, S.dist + 35);
     hint.classList.add("hidden");
     if (!turnTaught) { turnTaught = true; try { localStorage.setItem("bbTurned", "1"); } catch (e) {} }
   }
@@ -1300,6 +1308,19 @@ window.__boot = function () {
     else { S.swing = 1; S.h = .01; sfx("whoosh"); }
     S.qAt = S.dist + Math.max(55, 95 - S.dist * .01) + R() * 60;   // events come round more often as the run goes on
     return true;
+  }
+  function startTurnQ() {
+    const al = leg.allowed, both = al.length > 1, d = al[0];
+    S.tq = { phase: "prompt" }; S.ts = .5; S.zoneT = 0;
+    qIcon.innerHTML = `<use href="#i-${both ? "split" : d < 0 ? "left" : "right"}"/>`;
+    qLabel.textContent = both ? "Turn left or right!" : d < 0 ? "Turn left!" : "Turn right!";
+    qKey.textContent = both ? "← or → · swipe either way" : d < 0 ? "← / A · swipe left" : "→ / D · swipe right";
+    qEl.classList.remove("hidden", "ok", "go"); void qEl.offsetWidth; qEl.classList.add("go"); buzz(15);
+  }
+  function turnInput(d) {
+    if (!leg.allowed.includes(d)) { qLabel.textContent = "Other way!"; buzz(8); return; }
+    S.pending = d; S.tq.phase = "ok"; S.ts = 1; qEl.classList.add("ok"); qLabel.textContent = pickOf(["Nice!", "Smooth!", "Clean!"]); sfx("ok"); buzz(10);
+    setTimeout(() => { if (!(S.q && S.q.phase === "prompt") && !(S.tq && S.tq.phase === "prompt")) qEl.classList.add("hidden"); }, 500);
   }
   function qteFail() { const q = S.q; q.phase = "fail"; qEl.classList.add("hidden"); S.ts = 1; die(q.kind); }
   function updateQte(dt, sp) {
@@ -1461,8 +1482,9 @@ window.__boot = function () {
     updateQte(dt, sp); if (mode !== "run") return;
     if (S.pending && jz >= -.4) { doTurn(S.pending); }
     else {
-      if (!turnTaught && jz > -26 && jz < 2.4) { hint.textContent = leg.allowed.length > 1 ? "Swipe to turn" : leg.allowed[0] < 0 ? "Turn left!" : "Turn right!"; hint.classList.remove("hidden"); }
-      else hint.classList.add("hidden");
+      // every junction is a quick-time event: a clear arrow, slow motion, and a generous window right up to the corner
+      if (!S.tq && !(S.q && S.q.phase === "prompt") && jz > -24 && jz < -1) startTurnQ();
+      if (S.tq && S.tq.phase === "prompt") qRun.style.strokeDashoffset = (Math.min(1, Math.max(0, (jz + 24) / 26.6)) * 289).toFixed(1);
       if (jz > 2.6) { die(END[leg.theme] ? "wall" : "sea"); return; }
     }
     legs = legs.filter(l => { if (l === leg) return true; const e = l.g.position.z - l.len * Math.cos(l.g.rotation.y);
@@ -1600,15 +1622,16 @@ window.__boot = function () {
   }
   function showOver() {
     const d = Math.floor(S.dist + S.bonus), isBest = d > best, prev = best; if (isBest) { best = d; try { localStorage.setItem("idBest", best); } catch (e) {} }
-    const unlocked = []; ORDER.forEach(k => OUTFITS[k].forEach(([, name, req]) => { if (req > prev && req <= best) unlocked.push(name + " for " + INFO[k][0]); }));
+    const unlocked = []; ORDER.forEach(k => OUTFITS[k].forEach(([, name, req]) => { if (req > prev && req <= best) unlocked.push(name + " (" + INFO[k][0] + ")"); }));
+    MAPS.forEach(([, , name, req]) => { if (req > prev && req <= best) unlocked.unshift(name + " map"); });
     const j = JOKES[dieKind] || JOKES.wall; $("otitle").textContent = j[0]; $("ojoke").textContent = pickOf(j[1]);
-    $("odist").textContent = d; $("obest").textContent = best; $("onew").classList.toggle("hidden", !isBest); $("onew").textContent = unlocked.length ? "New best! Unlocked " + unlocked.join(" and ") : "New best!";
+    $("odist").textContent = d; $("obest").textContent = best; $("onew").classList.toggle("hidden", !isBest); $("onew").textContent = unlocked.length ? "New best! Unlocked: " + unlocked.join(", ") : "New best!";
     const ot = $("otitle"); ot.style.animation = "none"; void ot.offsetWidth; ot.style.animation = "";
     mode = "over"; hud.classList.add("hidden"); over.classList.remove("hidden"); $("again").focus();
   }
   function toMenu() {
     P.remove(model.g); slots[pick].add(model.g); model.g.position.set(0, 0, 0); model.g.rotation.set(0, 0, 0); model.g.scale.setScalar(model.sc);
-    reset(); mode = "menu"; menuT = 0; renderOutfits(); over.classList.add("hidden"); hud.classList.add("hidden"); menu.classList.remove("hidden"); $("mbest").textContent = "Best " + best + " m"; btn.focus();
+    reset(); mode = "menu"; menuT = 0; renderOutfits(); renderMaps(); over.classList.add("hidden"); hud.classList.add("hidden"); menu.classList.remove("hidden"); $("mbest").textContent = "Best " + best + " m"; btn.focus();
   }
   function again() { P.remove(model.g); slots[pick].add(model.g); start(); }
 
@@ -1618,7 +1641,8 @@ window.__boot = function () {
     if (mode !== "run") return;
     if (S.q && S.q.phase === "prompt") return qteInput(d < 0 ? "left" : "right");
     const jz = jzNow();
-    if (jz > -16 && jz < 2.6) { if (leg.allowed.includes(d)) { S.pending = d; if (jz >= -.4) doTurn(d); } return; } // near a junction, left/right means turn
+    if (S.tq && S.tq.phase === "prompt") { turnInput(d); if (S.pending && jz >= -.4) doTurn(d); return; }   // near a junction, left/right means turn
+    if (jz > -24 && jz < 2.6) { if (leg.allowed.includes(d)) { S.pending = d; if (jz >= -.4) doTurn(d); } return; }
     const nt = Math.max(-1, Math.min(1, S.target + d)); if (nt !== S.target) S.laneT = S.t; S.target = nt;
   };
   const jump = () => { if (mode !== "run") return; if (S.q && S.q.phase === "prompt") return qteInput("jump"); if (S.h === 0 && S.swing <= 0) { S.vy = 10; S.slide = 0; } };
@@ -1659,7 +1683,7 @@ window.__boot = function () {
   }
   addEventListener("resize", resize); addEventListener("orientationchange", () => setTimeout(resize, 150));
 
-  choose(pick); setMap(mapSel); reset(); resize(); $("mbest").textContent = "Best " + best + " m"; requestAnimationFrame(frame);
+  choose(pick); renderMaps(); setMap(mapSel); reset(); resize(); $("mbest").textContent = "Best " + best + " m"; requestAnimationFrame(frame);
   window.__game = { get S() { return S; }, get leg() { return leg; }, get legs() { return legs; }, get mode() { return mode; }, move, jump, slide, start, die, startQte, toMenu };
 };
 if (window.THREE) window.__boot();
