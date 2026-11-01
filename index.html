@@ -72,8 +72,8 @@
   </div>
   <div id="err"><p>Couldn't load the 3D engine. Check your internet connection and reload the page.</p></div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
-        onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js';s.onload=function(){window.__boot&&window.__boot()};s.onerror=function(){document.getElementById('err').style.display='flex'};document.head.appendChild(s)"></script>
+<script src="three.min.js"
+        onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';s.onload=function(){window.__boot&&window.__boot()};s.onerror=function(){document.getElementById('err').style.display='flex'};document.head.appendChild(s)"></script>
 <script>
 window.__boot = function () {
   if (window.__booted) return; window.__booted = true;
@@ -135,8 +135,8 @@ window.__boot = function () {
   const cam = new T.PerspectiveCamera(62, 1, .1, 300);
   const bgc = document.createElement("canvas"); bgc.width = 2; bgc.height = 256;
   const bgx = bgc.getContext("2d"), bgTex = new T.CanvasTexture(bgc); scene.background = bgTex;
-  const hemi = new T.HemisphereLight(0xdff6ff, 0xffd9b8, .95); scene.add(hemi);
-  const sun = new T.DirectionalLight(0xffffff, .75); sun.position.set(5, 12, 6); scene.add(sun);
+  const hemi = new T.HemisphereLight(0xdff6ff, 0xffd9b8, .78); scene.add(hemi);
+  const sun = new T.DirectionalLight(0xffffff, .5); sun.position.set(5, 12, 6); scene.add(sun);
 
   const matCache = {};
   const M = c => matCache[c] || (matCache[c] = new T.MeshLambertMaterial({ color: c }));
@@ -190,7 +190,7 @@ window.__boot = function () {
     mesh(B(.4, .85, .06), 0xf3efe6, 0, 1.55, -.5, g);
     const arms = [-1, 1].map(s => { const p = pivot(g, s * .68, 2.0);
       mesh(C(.2, .21, .4, 10), shirt, 0, -.15, 0, p); mesh(C(.12, .11, .7, 10), SK, 0, -.65, 0, p); mesh(S_(.12), SK, 0, -1.02, 0, p); return p; });
-    const h = new T.Group(); h.position.set(0, 2.95, 0); g.add(h);
+    const h = new T.Group(); h.position.set(0, 2.78, 0); g.add(h);
     mesh(S_(.55), new T.MeshLambertMaterial({ map: pineTex() }), 0, 0, 0, h).scale.set(.92, 1.2, .92);
     for (let i = 0; i < 11; i++) { const a = i / 11 * 6.283, l = mesh(K(.13, .95, 4), i % 2 ? 0x3f8f3a : 0x2e7d32, Math.sin(a) * .13, .85, Math.cos(a) * .13, h);
       l.rotation.set(Math.cos(a) * .55, 0, -Math.sin(a) * .55); }
@@ -198,7 +198,7 @@ window.__boot = function () {
     mesh(B(.3, .2, .06), 0x0d0d0d, -.2, .12, -.5, h); mesh(B(.3, .2, .06), 0x0d0d0d, .2, .12, -.5, h); mesh(B(.14, .05, .06), 0x0d0d0d, 0, .16, -.5, h);
     mesh(B(.05, .05, .6), 0x0d0d0d, -.44, .14, -.2, h); mesh(B(.05, .05, .6), 0x0d0d0d, .44, .14, -.2, h);
     mesh(B(.22, .04, .05), 0x7a3f0a, 0, -.14, -.52, h);
-    return { g, legs, arms, sc: .5 };
+    return { g, legs, arms, sc: .54 };
   }
   function fish() {
     const g = new T.Group(), SK = 0xf08a3c, SKL = 0xf7a65c, HAIR = 0xe96f27;
@@ -281,10 +281,10 @@ window.__boot = function () {
 
   /* ================= themed road stretches ================= */
   const THEMES = {
-    beach:  { name: "Nassau Shoreline", top: 0x37c5ee, bot: 0xcdf3ff, near: 25, far: 110, light: .95 },
-    street: { name: "Bay Street",       top: 0x3aa0e0, bot: 0xd4ecfa, near: 25, far: 110, light: 1 },
-    forest: { name: "Mangrove Cave",    top: 0x16303a, bot: 0x6c9a86, near: 12, far: 70,  light: .72 },
-    ocean:  { name: "Coral Reef Trail", top: 0x0b5f93, bot: 0x2bb7cf, near: 8,  far: 60,  light: .85 }
+    beach:  { name: "Nassau Shoreline", top: 0x37c5ee, bot: 0xcdf3ff, near: 25, far: 110, light: .78 },
+    street: { name: "Bay Street",       top: 0x3aa0e0, bot: 0xd4ecfa, near: 25, far: 110, light: .85 },
+    forest: { name: "Mangrove Cave",    top: 0x16303a, bot: 0x6c9a86, near: 12, far: 70,  light: .75 },
+    ocean:  { name: "Coral Reef Trail", top: 0x0b5f93, bot: 0x2bb7cf, near: 8,  far: 60,  light: .8 }
   };
   const THEME_KEYS = Object.keys(THEMES);
   const rnd = (a, b) => a + R() * (b - a), pickOf = a => a[(R() * a.length) | 0];
@@ -463,10 +463,11 @@ window.__boot = function () {
     else mesh(S2(rnd(.6, 1.4)), pickOf([0x6f7f8c, 0x8a97a1, 0x5f6e7a]), x, .2, z, g).scale.set(1.1, .7, 1);
   }
   function buildOcean(g, o) {
-    mesh(B(6.6, .3, o.L), 0xf1dfae, 0, -.1, o.zc, g);
-    for (let k = 0; ; k++) { const z = o.back - k * TL - TL / 2; if (z < o.zEnd + TL / 2) break; if (k % 2) mesh(B(6.6, .04, TL), 0xe6cf98, 0, .06, z, g); }
+    mesh(B(6.6, .3, o.L), 0xf6e7c0, 0, -.1, o.zc, g);
+    for (let k = 0; ; k++) { const z = o.back - k * TL - TL / 2; if (z < o.zEnd + TL / 2) break; if (k % 2) mesh(B(6.6, .04, TL), 0xeed9a2, 0, .06, z, g); }
+    for (let z = o.back; z > o.zEnd; z -= 1.3) for (const s of [-1, 1]) mesh(B(.6, .02, .08), 0xd8be84, s * rnd(.3, 2.8), .07, z + rnd(-.3, .3), g);
     for (let z = o.back; z > o.zEnd; z -= 2.4) for (const s of [-1, 1]) mesh(S2(.35), 0xaeb7be, s * 3.55 + rnd(-.1, .1), .1, z + rnd(-.3, .3), g).scale.set(1, .55, 1.2);
-    for (const s of [-1, 1]) for (let z = o.back + 4; z > o.jl - 4; z -= rnd(1.6, 3)) reefItem(g, s * (R() < .6 ? rnd(4.4, 8) : rnd(8, 16)), z);
+    for (const s of [-1, 1]) for (let z = o.back + 4; z > o.jl - 4; z -= rnd(.9, 1.7)) reefItem(g, s * (R() < .65 ? rnd(4.2, 8) : rnd(8, 18)), z);
     const cz = o.back - rnd(.3, .7) * o.L, cs = pickOf([-1, 1]);                           // a sunken treasure chest
     mesh(B(.9, .5, .6), 0x6b4423, cs * 5.6, .25, cz, g); mesh(B(.94, .12, .64), 0xffc93c, cs * 5.6, .56, cz, g);
     for (let i = 0; i < 5; i++) mesh(S2(.1), 0xffc93c, cs * 5.6 + rnd(-.5, .5), .08, cz + rnd(.4, .9), g);
@@ -479,8 +480,8 @@ window.__boot = function () {
   const BUILD = { beach: buildBeach, street: buildStreet, forest: buildForest, ocean: buildOcean };
   const END = { street: endStreet, forest: endForest, ocean: endOcean };
   const PAD = { beach: 0xfff1c9, street: 0x5d5d66, forest: 0x6e5233, ocean: 0xfaf0c8 };
-  const ARM = { beach: 0xb98a5a, street: 0x4a4a50, forest: 0x5e432a, ocean: 0xf1dfae };
-  const GROUND = { street: [0x56565c, 40], forest: [0x3b281c, 80], ocean: [0xd8c288, 80] };
+  const ARM = { beach: 0xb98a5a, street: 0x4a4a50, forest: 0x5e432a, ocean: 0xf6e7c0 };
+  const GROUND = { street: [0x56565c, 40], forest: [0x3b281c, 80], ocean: [0xb89d63, 80] };
   let legCount = 0;
 
   // A "leg" is one straight stretch of road in one theme. It ends in a junction you have to turn at.
@@ -571,7 +572,7 @@ window.__boot = function () {
     [...obs, ...coins].forEach(o => scene.remove(o.m)); obs = []; coins = [];
     S = { dist: 0, v: 14, lane: 0, target: 0, h: 0, vy: 0, slide: 0, coins: 0, t: 0, lean: 0, gap: .6, inv: 0, slow: 0,
           shake: 0, pending: 0, combo: 0, lastCoin: -9, sink: 0, legT: 0, zoneT: 0, nextLeg: null, nextTheme: "beach" };
-    leg = makeLeg(130, 14, pickOf(THEME_KEYS)); scene.add(leg.g); legs.push(leg); populate(-40, jzNow() + 24); seedSharks(); camYaw = 0; pYaw = 0;
+    leg = makeLeg(130, 14, (new URLSearchParams(location.search).get("theme") in THEMES) ? new URLSearchParams(location.search).get("theme") : pickOf(THEME_KEYS)); scene.add(leg.g); legs.push(leg); populate(-40, jzNow() + 24); seedSharks(); camYaw = 0; pYaw = 0;
     S.nextTheme = pickTheme(leg.theme); hint.classList.add("hidden"); zone.style.opacity = 0;
   }
   // Fill a stretch of road with obstacles + coins (world z from zFrom down to zTo; more negative = further away).
