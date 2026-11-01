@@ -14,7 +14,8 @@
     --ink-soft:#f6dcc8; color-scheme:dark;
     --ease-out:cubic-bezier(.16,1,.3,1);
   }
-  html,body { height:100%; width:100%; margin:0; position:fixed; inset:0; background:var(--plum); color:var(--cream); overflow:hidden; touch-action:none;
+  html { font-size:clamp(16px, calc(14.5px + .3vw), 19px); -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  html,body { height:100%; margin:0; background:var(--plum); color:var(--cream); overflow:hidden; touch-action:none;
     font-family:"Nunito","Trebuchet MS",sans-serif; font-weight:700; overscroll-behavior:none; -webkit-user-select:none; user-select:none;
     -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; }
   ::selection { background:var(--coral); color:var(--cream); }
@@ -40,7 +41,7 @@
   #dist { transform-origin:left center; }
   #dist.tick { animation:tick .55s cubic-bezier(.3,1.6,.5,1) both; color:var(--mango); }
   @keyframes tick { 0% { transform:scale(1); } 35% { transform:scale(1.35) rotate(-3deg); } 100% { transform:scale(1); } }
-  #hudbest { font-size:.85rem; opacity:.9; margin-top:2px; font-variant-numeric:tabular-nums; }
+  #hudbest { font-size:.95rem; opacity:.9; margin-top:2px; font-variant-numeric:tabular-nums; }
   #owlrow { display:flex; align-items:center; gap:6px; margin-top:8px; }
   #owlrow svg { width:20px; height:20px; }
   #owlbar { width:110px; height:8px; border-radius:6px; background:rgba(42,22,64,.55); overflow:hidden; }
@@ -118,7 +119,7 @@
   .logo .ch { display:inline-block; transform:translateY(115%); animation:chup .9s var(--ease-out) forwards, sway 5s ease-in-out infinite; animation-delay:calc(var(--i) * 55ms), calc(1.1s + var(--i) * 130ms); }
   @keyframes chup { to { transform:none; } }
   @keyframes sway { 0%,100% { transform:none; } 50% { transform:translateY(-4%) rotate(-2deg); } }
-  .tag { margin:.5rem 0 0; font-size:clamp(.9rem,2.4vw,1.1rem); color:var(--cream); text-shadow:0 1px 6px rgba(42,22,64,.7); }
+  .tag { margin:.5rem 0 0; font-size:clamp(1rem,2.6vw,1.2rem); color:var(--cream); text-shadow:0 1px 6px rgba(42,22,64,.7); }
   .bestpill { display:inline-flex; align-items:center; gap:.4rem; margin-top:.6rem; font-size:.95rem; font-variant-numeric:tabular-nums;
     text-shadow:0 1px 6px rgba(42,22,64,.7); }
   .panel { padding:2.4rem clamp(1rem,4vw,2rem) clamp(.9rem,3vh,1.4rem);
@@ -133,9 +134,9 @@
   .arrow:hover { border-color:var(--cream); }
   .who { text-align:center; min-width:12.5rem; }
   #cname { font-size:clamp(1.7rem,6vw,2.4rem); line-height:1; }
-  #cline { font-size:.9rem; color:var(--ink-soft); margin-top:.2rem; }
+  #cline { font-size:1rem; color:var(--ink-soft); margin-top:.2rem; }
   .outfits { display:flex; flex-wrap:wrap; justify-content:center; gap:.35rem; margin-top:-.35rem; }
-  .of { display:inline-flex; align-items:center; gap:.3rem; padding:.28rem .7rem; border-radius:999px; font-size:.8rem; border:2px solid transparent; background:rgba(255,244,224,.12); }
+  .of { display:inline-flex; align-items:center; gap:.3rem; padding:.28rem .7rem; border-radius:999px; font-size:.88rem; border:2px solid transparent; background:rgba(255,244,224,.12); }
   .of[aria-pressed="true"] { border-color:var(--mango); color:var(--mango); }
   .of:disabled { opacity:.55; cursor:default; }
   .of svg.i { width:1em; height:1em; }
@@ -181,7 +182,7 @@
   .hintx { margin:.4rem 0 0; font-size:.8rem; color:var(--ink-soft); }
   input[type=range] { width:100%; accent-color:var(--mango); }
   .maps { display:flex; flex-wrap:wrap; justify-content:center; gap:.4rem; }
-  .map { display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .8rem; border-radius:999px; font-size:.88rem;
+  .map { display:inline-flex; align-items:center; gap:.4rem; padding:.48rem .85rem; border-radius:999px; font-size:.95rem;
     border:2px solid rgba(255,244,224,.22); background:rgba(42,22,64,.45); transition:background .2s, border-color .2s; }
   .map:hover { border-color:rgba(255,244,224,.6); }
   .map[aria-pressed="true"] { background:var(--cream); color:var(--plum); border-color:var(--cream); }
@@ -190,8 +191,8 @@
     transition:transform .15s var(--ease-out), box-shadow .15s; }
   .play:hover { box-shadow:inset -6px -7px 14px rgba(150,30,10,.35), inset 6px 6px 12px rgba(255,220,200,.55), 0 14px 26px rgba(20,8,30,.45); }
   .play:active { transform:scale(1.04,.92); }
-  .keys { font-size:.78rem; color:var(--ink-soft); text-align:center; }
-  .credit { font-size:.66rem; opacity:.6; text-align:center; }
+  .keys { font-size:.88rem; color:var(--ink-soft); text-align:center; }
+  .credit { font-size:.72rem; opacity:.6; text-align:center; }
 
   /* ---------- game over ---------- */
   #over { position:absolute; inset:0; z-index:3; display:flex; align-items:flex-end; justify-content:center;
@@ -1199,16 +1200,63 @@ window.__boot = function () {
 
   /* ---------- Junkanoo parade: bleachers packed with a crowd, bunting across the street, confetti ---------- */
   const FEST = [0xff3d6e, 0xffc93c, 0x2ec4b6, 0x7b2cbf, 0xff8a3d, 0x3a86ff, 0x8ac926];
+  // Junkanoo crowd: a few low-poly spectator variants (skin, outfit, hair or hat, pose), each fused into one vertex-coloured mesh,
+  // then drawn with GPU instancing: hundreds of fans for a handful of draw calls. A tiny vertex-shader tweak makes them bob and cheer.
+  const crowdT = { value: 0 };
+  let crowdVariants = null;
+  function toColorGeo(group) {
+    group.updateMatrixWorld(true); const P3 = [], N3 = [], C3 = [], col = new T.Color();
+    group.traverse(o => { if (!o.isMesh) return; let g = o.geometry.clone().applyMatrix4(o.matrixWorld); if (g.index) g = g.toNonIndexed(); col.copy(o.material.color);
+      P3.push(...g.attributes.position.array); N3.push(...g.attributes.normal.array); for (let i = 0; i < g.attributes.position.count; i++) C3.push(col.r, col.g, col.b); });
+    const bg = new T.BufferGeometry(); bg.setAttribute("position", new T.Float32BufferAttribute(P3, 3)); bg.setAttribute("normal", new T.Float32BufferAttribute(N3, 3));
+    bg.setAttribute("color", new T.Float32BufferAttribute(C3, 3)); bg.computeBoundingSphere(); bg.userData.shared = true; return bg;
+  }
+  function spectator(pose) {
+    const g = new T.Group(), sk = pickOf(SKINS), sh = pickOf(FEST.concat([0xffffff, 0xf4e04d])), pa = pickOf([0x2b2d42, 0x3d5a80, 0xe9e3d5, 0x6c757d, 0x4a3b2a]);
+    const lm = c => new T.MeshBasicMaterial({ color: c });
+    const part = (geo, c, x, y, z, rx = 0, rz = 0, sx = 1, sy = 1, sz = 1) => { const m = new T.Mesh(geo, lm(c)); m.position.set(x, y, z); m.rotation.set(rx, 0, rz); m.scale.set(sx, sy, sz); g.add(m); return m; };
+    for (const s of [-1, 1]) { part(new T.CylinderGeometry(.075, .06, .86, 6), pa, s * .08, .5, 0); part(new T.SphereGeometry(.08, 6, 4), 0x222222, s * .08, .06, -.05, 0, 0, 1, .6, 1.5); }
+    part(new T.CylinderGeometry(.2, .17, .62, 8), sh, 0, 1.2, 0, 0, 0, 1, 1, .72);                                     // torso
+    part(new T.SphereGeometry(.2, 8, 5), sh, 0, 1.48, 0, 0, 0, 1.05, .45, .8);                                          // shoulders
+    part(new T.CylinderGeometry(.055, .055, .12, 6), sk, 0, 1.6, 0);
+    part(new T.SphereGeometry(.14, 8, 6), sk, 0, 1.76, 0, 0, 0, 1, 1.12, 1);                                            // head
+    const top = R();
+    if (top < .3) { part(new T.CylinderGeometry(.3, .3, .02, 12), 0xf2e3b3, 0, 1.88, 0); part(new T.CylinderGeometry(.13, .15, .12, 10), 0xf2e3b3, 0, 1.94, 0); }  // straw hat
+    else if (top < .5) part(new T.SphereGeometry(.16, 8, 5, 0, 6.283, 0, 1.6), pickOf(FEST), 0, 1.8, 0, 0, 0, 1.05, 1.1, 1.05);             // head wrap
+    else if (top < .65) { part(new T.SphereGeometry(.15, 8, 5, 0, 6.283, 0, 1.5), pickOf([0x1d3557, 0xe63946, 0x111111]), 0, 1.82, 0); part(new T.BoxGeometry(.2, .02, .16), 0x1d3557, 0, 1.84, -.14); }  // cap
+    else part(new T.SphereGeometry(.15, 8, 5, 0, 6.283, 0, 1.4), pickOf([0x1b1b1b, 0x3b2314, 0x2a1a10]), 0, 1.81, .015, 0, 0, 1.02, 1, 1.05);  // hair
+    for (const s of [-1, 1]) {
+      const up = pose === "wave" || (pose === "one" && s > 0), clap = pose === "clap";
+      const arm = part(new T.CylinderGeometry(.05, .045, .62, 6), up ? sk : sh, s * .25, up ? 1.75 : clap ? 1.3 : 1.18, clap ? -.18 : 0, clap ? -1.1 : 0, up ? s * 2.75 : clap ? s * -.5 : s * .12);
+      if (up && pose === "one") part(new T.CylinderGeometry(.012, .012, .5, 4), 0x5a3a24, s * .32, 2.2, 0), part(new T.ConeGeometry(.14, .26, 3), pickOf(FEST), s * .42, 2.36, 0, 0, -PI2, 1, 1, .2);  // little flag
+    }
+    return toColorGeo(g);
+  }
+  function crowdMat() {
+    const m = new T.MeshPhongMaterial({ vertexColors: true, shininess: 8 });
+    m.onBeforeCompile = sh => { sh.uniforms.crowdT = crowdT; sh.vertexShader = "uniform float crowdT;\n" + sh.vertexShader.replace("#include <begin_vertex>",
+      "#include <begin_vertex>\n#ifdef USE_INSTANCING\nfloat ph = instanceMatrix[3].x * 1.3 + instanceMatrix[3].z * 2.1;\ntransformed.y += abs(sin(crowdT * 4.2 + ph)) * .09 * (0.4 + 0.6 * step(1.0, transformed.y));\n#endif"); };
+    m.customProgramCacheKey = () => "crowd"; return m;
+  }
+  let crowdM = null;
+  function addCrowd(g, spots) {
+    if (!crowdVariants) { crowdM = crowdMat(); crowdVariants = []; for (let i = 0; i < 9; i++) crowdVariants.push(spectator(["wave", "clap", "one", "down"][i % 4])); }
+    const groups = crowdVariants.map(() => []), dummy = new T.Object3D();
+    spots.forEach(s => groups[(R() * groups.length) | 0].push(s));
+    groups.forEach((list, vi) => { if (!list.length) return;
+      const im = new T.InstancedMesh(crowdVariants[vi], crowdM, list.length); im.userData.keep = true; im.frustumCulled = false; im.receiveShadow = true;
+      list.forEach((sp, i) => { dummy.position.set(sp[0], sp[1], sp[2]); dummy.rotation.set(0, sp[3], 0); const k = rnd(.92, 1.08); dummy.scale.set(k, k, k); dummy.updateMatrix(); im.setMatrixAt(i, dummy.matrix); });
+      g.add(im); });
+  }
   function buildJunk(g, o) {
     roadBase(g, o, 0x3b3946, 0x35333f, true);
     for (let i = 0; i < o.L * 1.4; i++) mesh(B(.14, .02, .14), pickOf(FEST), rnd(-3.1, 3.1), .07, o.back - R() * o.L, g).rotation.y = R() * 3;   // confetti
     for (const s of [-1, 1]) {
       for (let r = 0; r < 3; r++) mesh(B(1.4, .5 + r * .55, o.L - 10), r % 2 ? 0x9aa0ad : 0x8a909c, s * (4.6 + r * 1.3), (.5 + r * .55) / 2, o.zc + 5, g);
-      for (let r = 0; r < 3; r++) for (let z = o.back - 6; z > o.jl + PH + 4; z -= rnd(1.1, 1.7)) {        // the crowd
-        const x = s * (4.6 + r * 1.3) + rnd(-.25, .25), y = .5 + r * .55;
-        mesh(C(.2, .26, .7, 6), pickOf(FEST), x, y + .35, z, g); mesh(S2(.17), pickOf(SKINS), x, y + .85, z, g);
-        if (R() < .3) { const a = mesh(C(.05, .05, .5, 4), pickOf(SKINS), x + .18 * -s, y + 1.0, z, g); a.rotation.z = s * .3; }
-      }
+      const spots = [];
+      for (let r = 0; r < 3; r++) for (let z = o.back - 6; z > o.jl + PH + 4; z -= rnd(1.15, 1.75))        // the crowd, facing the road
+        spots.push([s * (4.6 + r * 1.3) + rnd(-.2, .2), .5 + r * .55, z, s * PI2 + rnd(-.35, .35)]);
+      addCrowd(g, spots);
       for (let z = o.back - 8; z > o.jl + 20; z -= rnd(10, 14)) { const w = rnd(6, 9), hgt = rnd(7, 11);        // painted shopfronts behind the stands
         mesh(B(4, hgt, w), pickOf(COLONIAL), s * 11.5, hgt / 2, z, g); mesh(B(4.3, .3, w + .3), 0xffffff, s * 11.5, hgt, z, g); }
     }
@@ -1299,7 +1347,7 @@ window.__boot = function () {
   }
   function killObj(o) {
     scene.remove(o);
-    o.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material && c.material.userData && c.material.userData.own) c.material.dispose(); });
+    o.traverse(c => { if (c.geometry && !c.geometry.userData.shared) c.geometry.dispose(); if (c.material && c.material.userData && c.material.userData.own) c.material.dispose(); });
   }
 
   /* ---------- environment: sky colours, fog and ambient effects follow the theme of the road you're on ---------- */
@@ -1820,7 +1868,7 @@ window.__boot = function () {
     sharks.forEach(g => { g.position.z += (sp - Math.min(g.userData.sp, sp * .8)) * dt;
       if (g.position.z > 18) { g.position.z -= 140; g.position.x = Math.sign(g.position.x) * (9 + R() * 7); }
       g.position.y = Math.sin(now * 2 + g.userData.ph) * .05; });
-    updateLife(dt);
+    updateLife(dt); crowdT.value = S.t;
 
     // build the next stretch ahead of time, ~4 ms of work per frame, so neither the build nor the turn hitches
     if (!S.nextLeg && !S.legJob && S.t - S.legT > .6) S.legJob = legSteps(110 + R() * 60, 0, S.nextTheme);
