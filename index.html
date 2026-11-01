@@ -163,86 +163,166 @@ window.__boot = function () {
         S_ = r => new T.SphereGeometry(r, 14, 10), K = (r, h, s = 8) => new T.ConeGeometry(r, h, s);
   const pivot = (g, x, y) => { const p = new T.Group(); p.position.set(x, y, 0); g.add(p); return p; };
 
-  /* ================= characters (face -z; camera sees their backs) ================= */
+  /* ================= characters (face -z; camera sees their backs) =================
+     Smooth, rounded figures: lathed torsos, tapered limbs with knees and elbows, hands, sneakers and expressive faces. */
+  const SH = r => new T.SphereGeometry(r, 26, 18);
+  const lathe = (pts, seg = 30) => new T.LatheGeometry(pts.map(([r, y]) => new T.Vector2(Math.max(r, 1e-4), y)), seg);
+  // capsule hanging down from its pivot: radius r1 at the top joint, r2 at the bottom, length len between joint centres
+  const capCache = {};
+  const cap = (r1, r2, len) => capCache[[r1, r2, len]] || (capCache[[r1, r2, len]] = (() => { const pts = [];
+    for (let i = 0; i <= 8; i++) { const a = -PI2 + i / 8 * PI2; pts.push([r2 * Math.cos(a), -len + r2 * Math.sin(a)]); }
+    for (let i = 0; i <= 8; i++) { const a = i / 8 * PI2; pts.push([r1 * Math.cos(a), r1 * Math.sin(a)]); }
+    return lathe(pts, 22); })());
+  const ell = (r, c, x, y, z, p, sx = 1, sy = 1, sz = 1) => { const m = mesh(SH(r), c, x, y, z, p); m.scale.set(sx, sy, sz); return m; };
+  // flat rounded shape (fins, leaves, feathers) drawn in XY; [x,y] = line, [cx,cy,x,y] = curve
+  function flat(pts, depth = .05, bev = .025) {
+    const s = new T.Shape(); s.moveTo(pts[0][0], pts[0][1]);
+    for (const p of pts.slice(1)) p.length === 4 ? s.quadraticCurveTo(p[0], p[1], p[2], p[3]) : s.lineTo(p[0], p[1]);
+    const g = new T.ExtrudeGeometry(s, { depth, bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 3, curveSegments: 12 });
+    g.translate(0, 0, -depth / 2); g.computeVertexNormals(); return g;
+  }
+  const gloss = (c, sh = 60) => new T.MeshPhongMaterial({ color: c, specular: 0x666666, shininess: sh });
+  const smile = (p, r, x, y, z, c = 0x3a1a10, arc = 2.0, tube = .022) => { const m = mesh(new T.TorusGeometry(r, tube, 8, 20, arc), c, x, y, z, p); m.rotation.z = -PI2 - arc / 2; return m; };
+  function eye(p, x, y, z, r, iris, lid) {
+    const e = new T.Group(); e.position.set(x, y, z); p.add(e);
+    ell(r, 0xffffff, 0, 0, 0, e, 1, 1.1, .7);
+    ell(r * .62, iris, 0, -r * .05, -r * .5, e, 1, 1.1, .5);
+    ell(r * .36, 0x0a0a0a, 0, -r * .05, -r * .7, e, 1, 1.1, .5);
+    ell(r * .14, 0xffffff, -r * .22, r * .25, -r * .82, e);
+    if (lid) ell(r * 1.08, lid, 0, r * .18, -r * .04, e, 1, .55, .75);   // upper eyelid gives a determined look
+    return e;
+  }
+
+  // Shared athletic body. Feet rest at y=0; total height ~4.3 before the per-character scale.
+  function body(o) {
+    const g = new T.Group(), hips = new T.Group(); hips.position.y = 1.9; g.add(hips);
+    const torso = new T.Group(); hips.add(torso);
+    ell(.34, o.pants, 0, .02, 0, hips, 1, .62, .74);                                           // pelvis
+    const prof = o.slim
+      ? [[0, 0], [.27, .02], [.26, .3], [.24, .5], [.3, .78], [.35, 1.0], [.36, 1.12], [.3, 1.22], [.16, 1.3], [0, 1.31]]
+      : [[0, 0], [.31, .02], [.33, .26], [.31, .46], [.36, .72], [.43, .97], [.44, 1.1], [.38, 1.22], [.19, 1.3], [0, 1.32]];
+    mesh(lathe(prof), o.top, 0, 0, 0, torso).scale.z = .72;
+    mesh(cap(.1, .11, .2), o.skin, 0, 1.47, 0, torso);
+    const head = new T.Group(); head.position.set(0, 1.8, 0); torso.add(head);
+    const legs = [], knees = [], arms = [], elbows = [];
+    for (const s of [-1, 1]) {
+      const hp = pivot(hips, s * .18, 0); legs.push(hp);
+      mesh(cap(o.slim ? .17 : .21, o.slim ? .13 : .15, .8), o.thigh || o.pants, 0, 0, 0, hp);
+      if (o.shorts) mesh(lathe([[.2, -.6], [.235, -.56], [.235, -.5], [.2, -.42]], 22), o.shorts, 0, 0, 0, hp);
+      const kn = new T.Group(); kn.position.y = -.9; hp.add(kn); knees.push(kn);
+      mesh(cap(o.slim ? .13 : .15, o.slim ? .09 : .1, .74), o.shin || o.pants, 0, 0, 0, kn);
+      const ft = new T.Group(); ft.position.set(0, -.86, -.06); kn.add(ft);
+      ell(.17, o.shoe, 0, 0, -.06, ft, .9, .62, 1.55);
+      ell(.17, o.sole, 0, -.07, -.06, ft, .95, .28, 1.6);
+      if (o.lace) ell(.08, o.lace, 0, .07, -.2, ft, 1, .4, 1.2);
+      const sh = new T.Group(); sh.position.set(s * (o.slim ? .42 : .5), 1.12, 0); torso.add(sh); arms.push(sh);
+      ell(o.slim ? .13 : .16, o.sleeve || o.top, 0, -.02, 0, sh);                             // shoulder
+      mesh(cap(o.slim ? .1 : .13, o.slim ? .085 : .105, .62), o.upper || o.sleeve || o.skin, 0, 0, 0, sh);
+      if (o.cuff) mesh(lathe([[.12, -.46], [.15, -.42], [.15, -.36], [.13, -.3]], 20), o.cuff, 0, 0, 0, sh);
+      const el = new T.Group(); el.position.y = -.68; sh.add(el); elbows.push(el);
+      mesh(cap(o.slim ? .08 : .1, o.slim ? .065 : .08, .55), o.fore || o.skin, 0, 0, 0, el);
+      ell(.1, o.hand || o.skin, 0, -.68, -.01, el, .78, 1.05, .62);
+      ell(.04, o.hand || o.skin, -s * .07, -.63, -.05, el, 1, 1.6, 1).rotation.z = s * .5;     // thumb
+    }
+    return { g, hips, torso, head, legs, knees, arms, elbows };
+  }
+
   function shark() {
-    const g = new T.Group(), SK = 0x5f86b8, SKD = 0x456b9a, WH = 0xe9e4d8, HO = 0x3c68b4;
-    const legs = [-1, 1].map(s => { const p = pivot(g, s * .24, 1.05);
-      mesh(C(.2, .25, .95, 10), 0x3a3029, 0, -.48, 0, p);
-      mesh(B(.34, .2, .62), 0xf1efe8, 0, -1.0, -.1, p); mesh(B(.36, .07, .64), 0x2c4a82, 0, -1.1, -.1, p); return p; });
-    mesh(C(.56, .5, 1.0, 12), HO, 0, 1.6, 0, g);
-    mesh(B(.55, .9, .06), 0xf3efe6, 0, 1.55, -.5, g);
-    mesh(B(.05, .5, .05), 0xffffff, -.18, 1.7, -.55, g); mesh(B(.05, .5, .05), 0xffffff, .18, 1.7, -.55, g);
-    mesh(S_(.42), HO, 0, 2.2, .3, g).scale.set(1.15, .8, .9);
-    const arms = [-1, 1].map(s => { const p = pivot(g, s * .72, 2.0);
-      mesh(C(.2, .17, .9, 10), HO, 0, -.42, 0, p); mesh(S_(.17), SK, 0, -.95, 0, p); return p; });
-    const h = new T.Group(); h.position.set(0, 2.7, 0); g.add(h);
-    mesh(S_(.5), SK, 0, 0, .02, h).scale.set(1, .95, 1.1);
-    mesh(S_(.34), SK, 0, -.05, -.5, h).scale.set(.95, .8, 1.35);
-    mesh(S_(.3), WH, 0, -.2, -.5, h).scale.set(.95, .55, 1.25);
-    for (let i = -2; i <= 2; i++) mesh(K(.035, .09, 4), 0xffffff, i * .065, -.12, -.84 + Math.abs(i) * .05, h).rotation.x = Math.PI;
-    for (const s of [-1, 1]) { mesh(S_(.075), 0x111111, s * .3, .1, -.3, h); mesh(S_(.022), 0xffffff, s * .3 - .02, .13, -.36, h); }
-    const fin = mesh(K(.3, .8, 4), SKD, 0, .62, .12, h); fin.scale.z = .35; fin.rotation.x = -.35;
-    return { g, legs, arms, sc: .6 };
+    const SK = 0x6b93c4, SKD = 0x4b74a8, WH = 0xf1ece2, HO = 0x2f5ea8, HOD = 0x264d8c;
+    const b = body({ skin: SK, top: HO, sleeve: HO, upper: HO, fore: HO, hand: SK, pants: 0x2c3e66, shoe: 0xf6f6f6, sole: 0xe24b3b, lace: 0xe24b3b });
+    const t = b.torso, h = b.head;
+    ell(.3, HOD, 0, 1.25, .22, t, 1.25, .6, .9);                                                // hood resting on the back
+    ell(.22, HOD, 0, .42, -.3, t, 1.3, .62, .25);                                               // front pocket
+    for (const s of [-1, 1]) { const d = mesh(cap(.014, .014, .34), 0xffffff, s * .1, 1.26, -.3, t); ell(.03, 0xffffff, 0, -.36, 0, d); }
+    mesh(lathe([[.3, .0], [.33, .05], [.33, .11], [.3, .15]], 26), HOD, 0, -.02, 0, t).scale.z = .74; // waistband
+    // head
+    ell(.44, SK, 0, 0, .02, h, 1, .98, 1.22);
+    ell(.33, SK, 0, -.05, -.38, h, .95, .74, 1.25);
+    ell(.33, WH, 0, -.2, -.3, h, .92, .5, 1.22);
+    smile(h, .2, 0, -.06, -.66, 0x2a1a20, 2.2, .025);
+    for (let i = -3; i <= 3; i++) { const a = i * .3, tth = mesh(K(.028, .08, 6), 0xffffff, Math.sin(a) * .2, -.21 + (1 - Math.cos(a)) * .2, -.66 + Math.abs(i) * .03, h); tth.rotation.x = Math.PI; }
+    for (const s of [-1, 1]) {
+      eye(h, s * .27, .12, -.34, .11, 0x2a2a2a, SKD);
+      mesh(cap(.024, .024, .15), SKD, s * .2, .27, -.35, h).rotation.set(-.35, 0, s * (PI2 + .25));   // brow
+      for (let i = 0; i < 3; i++) { const gl = mesh(new T.TorusGeometry(.12, .012, 6, 12, 1.4), SKD, s * .41, -.06, .02 + i * .09, h); gl.rotation.set(0, PI2, -.7); }
+    }
+    const fin = mesh(flat([[-.32, 0], [.05, .1, .02, .62], [.14, .3, .34, 0]], .06, .03), SKD, 0, .38, .1, h); fin.rotation.y = PI2;
+    const tail = mesh(flat([[0, 0], [.1, .2, .38, .42], [.18, .12, .14, -.02], [.3, -.2, .34, -.34], [.08, -.15, 0, 0]], .05, .025), SKD, 0, .2, .3, b.hips);
+    tail.rotation.y = -PI2;
+    return { ...b, sc: .5 };
   }
   function floralTex() {
-    const c = document.createElement("canvas"); c.width = c.height = 128; const x = c.getContext("2d");
-    x.fillStyle = "#5c8f3c"; x.fillRect(0, 0, 128, 128);
-    for (const [px, py] of [[20, 24], [84, 18], [52, 64], [108, 76], [18, 100], [76, 108]]) {
-      x.fillStyle = "#fbf3dc"; for (let i = 0; i < 5; i++) { const a = i * 1.2566; x.beginPath(); x.arc(px + Math.cos(a) * 9, py + Math.sin(a) * 9, 8, 0, 7); x.fill(); }
-      x.fillStyle = "#f4c542"; x.beginPath(); x.arc(px, py, 4, 0, 7); x.fill();
+    const c = document.createElement("canvas"); c.width = c.height = 256; const x = c.getContext("2d");
+    x.fillStyle = "#3f8a6b"; x.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 9; i++) { x.fillStyle = "rgba(20,70,50,.6)"; x.beginPath(); x.ellipse(R() * 256, R() * 256, 30, 9, R() * 3, 0, 7); x.fill(); }
+    for (const [px, py] of [[40, 48], [168, 36], [104, 128], [216, 152], [36, 200], [152, 216]]) {
+      x.fillStyle = "#ff6f61"; for (let i = 0; i < 5; i++) { const a = i * 1.2566; x.beginPath(); x.ellipse(px + Math.cos(a) * 15, py + Math.sin(a) * 15, 14, 9, a, 0, 7); x.fill(); }
+      x.fillStyle = "#ffd23f"; x.beginPath(); x.arc(px, py, 7, 0, 7); x.fill();
     }
-    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; return t;
+    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(2, 1); return t;
   }
   function pineTex() {
-    const c = document.createElement("canvas"); c.width = c.height = 64; const x = c.getContext("2d");
-    x.fillStyle = "#f5be2c"; x.fillRect(0, 0, 64, 64); x.strokeStyle = "#c98716"; x.lineWidth = 3;
-    for (let i = -64; i < 128; i += 16) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 64, 64); x.moveTo(i + 64, 0); x.lineTo(i, 64); x.stroke(); }
-    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(3, 2); return t;
+    const c = document.createElement("canvas"); c.width = c.height = 128; const x = c.getContext("2d");
+    x.fillStyle = "#f2b52a"; x.fillRect(0, 0, 128, 128);
+    for (let r = 0; r < 8; r++) for (let q = 0; q < 8; q++) {          // diamond scales with a soft highlight and a dark eye
+      const cx = q * 16 + (r % 2) * 8, cy = r * 16 + 8, gr = x.createRadialGradient(cx - 2, cy - 3, 1, cx, cy, 10);
+      gr.addColorStop(0, "#ffd968"); gr.addColorStop(1, "#c98a17"); x.fillStyle = gr;
+      x.beginPath(); x.moveTo(cx, cy - 8); x.lineTo(cx + 8, cy); x.lineTo(cx, cy + 8); x.lineTo(cx - 8, cy); x.closePath(); x.fill();
+      x.fillStyle = "#7a4a0c"; x.beginPath(); x.arc(cx, cy + 1, 1.6, 0, 7); x.fill();
+    }
+    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(4, 2); return t;
   }
   function pine() {
-    const g = new T.Group(), SK = 0xf1b82d, shirt = new T.MeshLambertMaterial({ map: floralTex() });
-    const legs = [-1, 1].map(s => { const p = pivot(g, s * .22, 1.05);
-      mesh(C(.25, .27, .55, 10), 0xc9a96e, 0, -.28, 0, p); mesh(C(.1, .1, .55, 8), SK, 0, -.8, 0, p);
-      mesh(B(.32, .2, .6), 0xf3f1ea, 0, -1.02, -.1, p); mesh(B(.33, .09, .3), 0x4e8a45, 0, -.96, -.18, p); return p; });
-    mesh(C(.54, .5, 1.0, 12), shirt, 0, 1.6, 0, g);
-    mesh(B(.4, .85, .06), 0xf3efe6, 0, 1.55, -.5, g);
-    const arms = [-1, 1].map(s => { const p = pivot(g, s * .68, 2.0);
-      mesh(C(.2, .21, .4, 10), shirt, 0, -.15, 0, p); mesh(C(.12, .11, .7, 10), SK, 0, -.65, 0, p); mesh(S_(.12), SK, 0, -1.02, 0, p); return p; });
-    const h = new T.Group(); h.position.set(0, 2.78, 0); g.add(h);
-    mesh(S_(.55), new T.MeshLambertMaterial({ map: pineTex() }), 0, 0, 0, h).scale.set(.92, 1.2, .92);
-    for (let i = 0; i < 11; i++) { const a = i / 11 * 6.283, l = mesh(K(.13, .95, 4), i % 2 ? 0x3f8f3a : 0x2e7d32, Math.sin(a) * .13, .85, Math.cos(a) * .13, h);
-      l.rotation.set(Math.cos(a) * .55, 0, -Math.sin(a) * .55); }
-    mesh(K(.14, 1.1, 4), 0x2e7d32, 0, .95, 0, h);
-    mesh(B(.3, .2, .06), 0x0d0d0d, -.2, .12, -.5, h); mesh(B(.3, .2, .06), 0x0d0d0d, .2, .12, -.5, h); mesh(B(.14, .05, .06), 0x0d0d0d, 0, .16, -.5, h);
-    mesh(B(.05, .05, .6), 0x0d0d0d, -.44, .14, -.2, h); mesh(B(.05, .05, .6), 0x0d0d0d, .44, .14, -.2, h);
-    mesh(B(.22, .04, .05), 0x7a3f0a, 0, -.14, -.52, h);
-    return { g, legs, arms, sc: .54 };
+    const SK = 0xf1b82d, shirt = new T.MeshPhongMaterial({ map: floralTex(), shininess: 8, specular: 0x111111 });
+    const b = body({ skin: SK, top: shirt, sleeve: shirt, upper: shirt, cuff: shirt, pants: 0xcfae74, thigh: 0xcfae74, shorts: 0xcfae74, shin: SK,
+                     shoe: 0x3f8f5a, sole: 0xfafafa, lace: 0xfafafa });
+    const t = b.torso, h = b.head;
+    for (const s of [-1, 1]) { const c = mesh(flat([[0, 0], [.16, -.02], [.05, -.22]], .02, .015), 0xfbf3dc, s * .1, 1.33, -.22, t); c.rotation.set(-.5, s > 0 ? Math.PI : 0, 0); } // collar
+    ell(.12, SK, 0, 1.2, -.27, t, 1, 1, .4);                                                     // open-collar V
+    // pineapple head
+    const pm = new T.MeshPhongMaterial({ map: pineTex(), shininess: 22, specular: 0x332200 });
+    mesh(lathe([[0, -.6], [.3, -.55], [.47, -.32], [.52, 0], [.48, .3], [.34, .52], [.12, .62], [0, .63]], 32), pm, 0, .05, 0, h);
+    const leafM = new T.MeshPhongMaterial({ color: 0x2e8b3e, shininess: 30, specular: 0x224422, side: T.DoubleSide });
+    const leaf = flat([[-.09, 0], [-.12, .5, 0, 1], [.12, .5, .09, 0]], .02, .012);
+    for (let ring = 0; ring < 3; ring++) for (let i = 0; i < 7; i++) {
+      const a = i / 7 * 6.283 + ring * .45, p = new T.Group(); p.position.set(0, .6 + ring * .08, 0); p.rotation.set(0, a, 0); h.add(p);
+      const l = mesh(leaf, ring === 1 ? 0x3fa34d : leafM, 0, 0, 0, p); l.rotation.x = -.85 + ring * .32; l.scale.setScalar(1 - ring * .18 + R() * .1);
+    }
+    const shades = gloss(0x111418, 110);
+    for (const s of [-1, 1]) { ell(.15, shades, s * .19, .16, -.44, h, 1.2, .82, .4); mesh(cap(.016, .016, .4), 0x111418, s * .37, .2, -.36, h).rotation.set(-PI2, 0, 0); }
+    mesh(cap(.02, .02, .14), 0x111418, -.07, .2, -.52, h).rotation.z = PI2;
+    smile(h, .14, 0, -.12, -.5, 0x5a2a08, 2.4, .024);
+    ell(.05, 0xe8952a, -.24, -.08, -.47, h); ell(.05, 0xe8952a, .24, -.08, -.47, h);           // cheeks
+    return { ...b, sc: .47 };
   }
   function fish() {
-    const g = new T.Group(), SK = 0xf08a3c, SKL = 0xf7a65c, HAIR = 0xe96f27;
-    const legs = [-1, 1].map(s => { const p = pivot(g, s * .17, 1.1);
-      mesh(C(.1, .08, 1.0, 8), SK, 0, -.5, 0, p); mesh(B(.17, .06, .36), SKL, 0, -1.0, -.1, p); return p; });
-    mesh(C(.28, .52, .42, 14), 0x5e84bd, 0, 1.3, 0, g);
-    mesh(S_(.07), 0xf4a3b4, 0, 1.42, -.3, g).scale.z = .4;
-    mesh(C(.26, .27, .3, 12), SK, 0, 1.62, 0, g);
-    mesh(C(.33, .3, .5, 12), 0xf6f3ee, 0, 1.98, 0, g);
-    mesh(S_(.1), 0xf4a3b4, 0, 2.0, -.3, g).scale.z = .35;
-    mesh(C(.1, .11, .2, 8), SK, 0, 2.3, 0, g);
-    mesh(new T.TorusGeometry(.15, .025, 6, 16), 0xffffff, 0, 2.28, 0, g).rotation.x = PI2;
-    const arms = [-1, 1].map(s => { const p = pivot(g, s * .44, 2.15);
-      mesh(C(.075, .065, .95, 8), SK, 0, -.47, 0, p); mesh(S_(.075), SK, 0, -.97, 0, p); return p; });
-    const tail = mesh(K(.35, .8, 3), 0xff8a4d, 0, .75, .5, g); tail.scale.x = .3; tail.rotation.x = 2.6;
-    const h = new T.Group(); h.position.set(0, 2.75, 0); g.add(h);
-    mesh(S_(.42), SK, 0, 0, 0, h).scale.set(1, 1.02, .95);
+    const SK = 0xf28c3e, SKL = 0xffb067, HAIR = 0xd9531e, TOP = 0xffffff, SKIRT = 0x3f7fd1;
+    const b = body({ slim: true, skin: SK, top: SK, sleeve: SK, pants: SK, shoe: 0xff8fb1, sole: 0xffffff, lace: 0xffffff });
+    const t = b.torso, h = b.head;
+    mesh(lathe([[.3, .72], [.355, .82], [.375, 1.0], [.37, 1.12], [.31, 1.22], [.2, 1.26]], 30), TOP, 0, 0, 0, t).scale.z = .76;       // crop top
+    mesh(lathe([[.44, -.1], [.48, -.08], [.45, .05], [.33, .4], [.29, .52]], 30), SKIRT, 0, 0, 0, t).scale.z = .8;                        // skater skirt
+    mesh(new T.TorusGeometry(.15, .022, 8, 24), 0xffffff, 0, 1.5, 0, t).rotation.x = PI2;                                                // shell necklace
+    ell(.05, 0xffb6c8, 0, 1.43, -.15, t);
+    // head
+    ell(.42, SK, 0, 0, 0, h, 1, 1.02, .96);
+    ell(.25, SKL, 0, -.16, -.24, h, 1.1, .7, .8);                                               // muzzle
     for (const s of [-1, 1]) {
-      mesh(S_(.17), 0xffffff, s * .2, .08, -.3, h); mesh(S_(.1), 0x111111, s * .2, .08, -.43, h); mesh(S_(.03), 0xffffff, s * .2 - .03, .12, -.5, h);
-      const f = mesh(K(.2, .55, 4), SKL, s * .46, .05, 0, h); f.scale.z = .3; f.rotation.z = -s * (PI2 - .25);
-      mesh(C(.1, .07, .8, 8), HAIR, s * .4, -.35, -.05, h);
+      eye(h, s * .19, .07, -.33, .13, 0x1f6fd1);
+      mesh(cap(.018, .018, .12), 0x7a2a0a, s * .19, .27, -.37, h).rotation.z = s * (PI2 - .2);
+      const f = mesh(flat([[0, 0], [.15, .3, .42, .22], [.3, .05, .38, -.12], [.15, -.1, 0, 0]], .03, .02), SKL, s * .38, .06, 0, h); f.rotation.y = s > 0 ? 0 : Math.PI;   // fin ears
+      ell(.05, 0xff7a6b, s * .27, -.1, -.33, h);                                                // blush
     }
-    mesh(B(.22, .04, .05), 0x8a3b12, 0, -.2, -.4, h);
-    mesh(S_(.46), HAIR, 0, .12, .1, h).scale.set(1.05, .9, 1.05);
-    const hair = mesh(C(.34, .18, 1.5, 12), HAIR, 0, -.75, .32, h);
-    return { g, legs, arms, hair, sc: .6 };
+    smile(h, .1, 0, -.15, -.39, 0x7a2a0a, 2.2, .02);
+    const hm = new T.MeshPhongMaterial({ color: HAIR, shininess: 40, specular: 0x442211, side: T.DoubleSide });
+    mesh(new T.SphereGeometry(.455, 28, 12, 0, 6.283, 0, 1.15), hm, 0, .03, .02, h);           // crown
+    mesh(new T.SphereGeometry(.45, 28, 18, 0, Math.PI, 0, 2.3), hm, 0, .03, .05, h);           // back of the head
+    for (let i = -2; i <= 2; i++) ell(.12, hm, i * .11, .3 - Math.abs(i) * .03, -.33 + Math.abs(i) * .05, h, 1, .7, .8);  // bangs
+    const hair = new T.Group(); hair.position.set(0, .22, .38); h.add(hair);
+    mesh(new T.TorusGeometry(.08, .03, 8, 16), 0x41c4c3, 0, 0, .02, hair);
+    const tail = mesh(cap(.12, .05, .95), hm, 0, -.04, .05, hair); tail.rotation.x = -.3;
+    const fin = mesh(flat([[0, 0], [.1, .15, .32, .34], [.2, .05, .1, -.06], [.28, -.24, .3, -.32], [.06, -.12, 0, 0]], .04, .02), SKL, 0, .5, .3, b.hips);
+    fin.rotation.y = -PI2;
+    return { ...b, hair, sc: .52 };
   }
   const CH = { shark, pine, fish }, P = new T.Group(); P.rotation.order = "YXZ"; scene.add(P);
   let model;
@@ -258,21 +338,33 @@ window.__boot = function () {
   /* ================= the owl chaser ================= */
   const owl = new T.Group(); scene.add(owl);
   const owlRig = (() => {
-    const g = new T.Group(), GR = 0xbdbdb6, GRL = 0xdcdcd6, BR = 0x9c5a2a, BL = 0x15110f;
+    const g = new T.Group(), GR = 0x9b8f80, GRL = 0xe6ddcf, BR = 0x7a4a26, BRD = 0x4e2e16, TAL = 0xd9a520, CL = 0x1a1410;
     const legs = [-1, 1].map(s => { const p = pivot(g, s * .3, 2.3);
-      mesh(C(.07, .06, 2.3, 6), BL, 0, -1.15, 0, p);
-      for (const a of [-.4, 0, .4]) { const t = mesh(B(.09, .06, .65), BL, 0, -2.3, -.3, p); t.rotation.y = a; t.position.x = a * .35; }
+      mesh(cap(.16, .09, .6), GRL, 0, 0, 0, p);                                                 // feathered thigh
+      mesh(cap(.07, .06, 1.55), TAL, 0, -.7, 0, p);
+      for (const a of [-.45, 0, .45]) { const toe = new T.Group(); toe.position.set(0, -2.25, 0); toe.rotation.y = a; p.add(toe);
+        mesh(cap(.05, .04, .38), TAL, 0, 0, 0, toe).rotation.x = PI2; mesh(K(.04, .16, 6), CL, 0, 0, -.5, toe).rotation.x = -PI2 - .5; }
+      const back = mesh(cap(.045, .035, .25), TAL, 0, -2.25, 0, p); back.rotation.x = -PI2;
       return p; });
-    mesh(S_(.7), GR, 0, 3.05, 0, g).scale.set(.8, 1.15, .75);
-    mesh(S_(.45), GRL, 0, 2.95, -.32, g).scale.set(.8, 1, .5);
-    const wings = [-1, 1].map(s => { const p = pivot(g, s * .62, 3.5); p.rotation.z = s * .15;
-      mesh(B(.2, 1.7, .6), BR, s * .08, -.8, .08, p); mesh(B(.22, .5, .55), BL, s * .08, -1.7, .1, p); return p; });
-    mesh(C(.2, .25, .5, 8), GR, 0, 3.8, 0, g);
-    const head = new T.Group(); head.position.set(0, 4.25, 0); head.rotation.y = Math.PI; g.add(head); // head turned backwards, staring at you
-    mesh(S_(.52), GRL, 0, 0, 0, head).scale.set(1.05, .95, .9);
-    for (const s of [-1, 1]) { mesh(S_(.17), 0xe8472a, s * .2, .06, -.36, head); mesh(S_(.085), 0x050505, s * .2, .06, -.5, head);
-      mesh(B(.3, .06, .1), 0x3a2a1e, s * .2, .26, -.4, head).rotation.z = -s * .3; }
-    const beak = mesh(K(.07, .24, 4), 0x2c2118, 0, -.08, -.55, head); beak.rotation.x = -PI2;
+    // egg-shaped body, cream chest with feather scallops
+    mesh(lathe([[0, 2.2], [.45, 2.3], [.7, 2.6], [.78, 3.0], [.7, 3.5], [.48, 3.85], [.25, 4.0], [0, 4.02]], 30), GR, 0, 0, 0, g).scale.z = .85;
+    ell(.55, GRL, 0, 2.95, -.3, g, .95, 1.25, .55);
+    for (let r = 0; r < 4; r++) for (let i = -2; i <= 2; i++) if (Math.abs(i) < 3 - r * .4)
+      mesh(new T.TorusGeometry(.07, .012, 4, 10, Math.PI), 0xb8ab98, i * .15 + (r % 2) * .075, 3.35 - r * .25, -.58 + Math.abs(i) * .04 - r * .02, g).rotation.z = Math.PI;
+    const feather = flat([[0, 0], [.2, -.4, .14, -1.5], [.06, -1.95, 0, -2.0], [-.06, -1.95, -.14, -1.5], [-.2, -.4, 0, 0]], .08, .04);
+    const wings = [-1, 1].map(s => { const p = pivot(g, s * .7, 3.55); p.rotation.z = s * .15;
+      const w = mesh(feather, BR, -s * .12, .05, .32, p); w.rotation.set(.12, s * .55, 0); w.scale.set(2.3, .82, 1);   // broad folded wing over the back
+      for (let i = 0; i < 4; i++) { const f = mesh(feather, BRD, -s * (.05 + i * .1), -.95 - i * .06, .48 + i * .02, p); f.rotation.set(.18, s * .5, s * (.12 - i * .08)); f.scale.set(.8, .55, 1); }
+      return p; });
+    const head = new T.Group(); head.position.set(0, 4.3, 0); head.rotation.y = Math.PI; g.add(head); // head turned backwards, staring at you
+    ell(.6, GR, 0, 0, 0, head, 1.08, .92, .92);
+    for (const s of [-1, 1]) {
+      ell(.3, GRL, s * .24, 0, -.4, head, 1, 1.05, .4);                                         // facial disc
+      eye(head, s * .24, .02, -.47, .19, 0xff8a1f, GR);
+      const tuft = mesh(flat([[-.12, 0], [-.05, .3, .1, .5], [.05, .2, .14, 0]], .06, .03), BR, s * .38, .45, -.05, head); tuft.rotation.set(0, PI2, -s * .35);
+      mesh(cap(.03, .03, .26), BRD, s * .2, .3, -.5, head).rotation.z = s * (PI2 + .45);         // angry brow
+    }
+    const beak = mesh(K(.08, .3, 10), 0x3a2c1c, 0, -.12, -.6, head); beak.rotation.x = -PI2 - .55;
     head.rotation.z = .35;
     return { g, legs, wings, head };
   })();
@@ -731,9 +823,17 @@ window.__boot = function () {
 
   function pose(dt) {
     const run = mode === "run", s = run ? Math.sin(S.t * 12) : 0, air = S.h > .05, sl = run && S.slide > 0 && !air;
-    model.legs[0].rotation.x = air ? -.9 : s * .9; model.legs[1].rotation.x = air ? .5 : -s * .9;
-    model.arms[0].rotation.x = air ? -2.4 : -s * .9; model.arms[1].rotation.x = air ? -2.4 : s * .9;
-    if (model.hair) model.hair.rotation.x = Math.sin(S.t * 6) * .12 + (run ? .1 : 0);
+    const c = run ? Math.cos(S.t * 12) : 0, idleB = run ? 0 : Math.sin(S.t * 2.2);
+    model.legs[0].rotation.x = air ? .9 : s * .85; model.legs[1].rotation.x = air ? -.35 : -s * .85;
+    model.knees[0].rotation.x = air ? -1.5 : run ? -(.25 + 1.25 * Math.max(0, c)) : -.04;     // the knee folds as the leg swings forward
+    model.knees[1].rotation.x = air ? -.5 : run ? -(.25 + 1.25 * Math.max(0, -c)) : -.04;
+    model.arms[0].rotation.x = air ? -2.2 : -s * .85; model.arms[1].rotation.x = air ? -2.0 : s * .85;
+    model.arms[0].rotation.z = air ? -.3 : -.08 - idleB * .02; model.arms[1].rotation.z = air ? .3 : .08 + idleB * .02;
+    model.elbows[0].rotation.x = air ? .4 : run ? 1.25 - s * .25 : .15; model.elbows[1].rotation.x = air ? .4 : run ? 1.25 + s * .25 : .15;
+    model.hips.position.y = 1.9 + (run && !air ? Math.abs(c) * .09 : idleB * .01); model.hips.rotation.y = -s * .1;
+    model.torso.rotation.y = s * .22; model.torso.rotation.x = run ? -.16 : idleB * .015;
+    model.head.rotation.y = -s * .12; model.head.rotation.x = run ? .1 : 0;
+    if (model.hair) model.hair.rotation.x = -(Math.sin(S.t * (run ? 12 : 3)) * .12 + (run ? .45 : .05));
     model.g.rotation.x = sl ? 1.3 : 0; model.g.position.y = sl ? .22 : 0;
     P.position.set(S.lane * LW, S.h - S.sink, 0); P.rotation.z = -S.lean * .25;
     P.visible = !(S.inv > 0) || Math.floor(S.t * 20) % 2 === 0;
