@@ -41,6 +41,16 @@
   #zone { position:absolute; left:0; right:0; top:14%; z-index:1; text-align:center; pointer-events:none; opacity:0;
     font-size:clamp(1.3rem,4.6vw,2.2rem); text-shadow:0 3px 12px rgba(42,22,64,.6); }
   .hidden { display:none !important; }
+  #pow { position:absolute; left:0; right:0; top:22%; z-index:2; text-align:center; pointer-events:none; font-size:clamp(3rem,13vw,6rem); color:var(--mango);
+    -webkit-text-stroke:.06em var(--plum); paint-order:stroke fill; text-shadow:0 .08em .2em rgba(42,22,64,.5); }
+  #pow.go { animation:powin .9s var(--ease-out) both; }
+  @keyframes powin { 0% { transform:scale(2.2) rotate(-8deg); opacity:0; } 18% { transform:scale(1) rotate(-4deg); opacity:1; } 80% { opacity:1; } 100% { transform:scale(1.05) rotate(-4deg); opacity:0; } }
+  #nm { position:absolute; left:0; right:0; top:34%; z-index:1; text-align:center; pointer-events:none; font-size:clamp(1.4rem,5vw,2.2rem); color:var(--sea);
+    -webkit-text-stroke:.05em var(--plum); paint-order:stroke fill; }
+  #nm.go { animation:nmin .8s var(--ease-out) both; }
+  @keyframes nmin { 0% { transform:translateY(10px) scale(.8); opacity:0; } 20% { transform:none; opacity:1; } 75% { opacity:1; } 100% { transform:translateY(-14px); opacity:0; } }
+  #vig { position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 58%, rgba(20,8,30,.32) 100%); }
+  #hap { position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
 
   /* ---------- quick-time prompt ---------- */
   #qte { position:absolute; left:50%; top:29%; z-index:2; transform:translate(-50%,-50%); pointer-events:none;
@@ -82,6 +92,11 @@
   .who { text-align:center; min-width:12.5rem; }
   #cname { font-size:clamp(1.7rem,6vw,2.4rem); line-height:1; }
   #cline { font-size:.9rem; color:var(--ink-soft); margin-top:.2rem; }
+  .outfits { display:flex; flex-wrap:wrap; justify-content:center; gap:.35rem; margin-top:-.35rem; }
+  .of { display:inline-flex; align-items:center; gap:.3rem; padding:.28rem .7rem; border-radius:999px; font-size:.8rem; border:2px solid transparent; background:rgba(255,244,224,.12); }
+  .of[aria-pressed="true"] { border-color:var(--mango); color:var(--mango); }
+  .of:disabled { opacity:.55; cursor:default; }
+  .of svg.i { width:1em; height:1em; }
   .maps { display:flex; flex-wrap:wrap; justify-content:center; gap:.4rem; }
   .map { display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .8rem; border-radius:999px; font-size:.88rem;
     border:2px solid rgba(255,244,224,.22); background:rgba(42,22,64,.45); transition:background .2s, border-color .2s; }
@@ -136,6 +151,10 @@
   <symbol id="i-street" viewBox="0 0 24 24"><path d="M3 21V9l5-4 5 4v12M13 21V11h8v10M2 21h20M6.5 12h3M6.5 16h3M16 14h2M16 17.5h2"/></symbol>
   <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19C5 10 11 4 20 4c0 9-6 15-15 15zM5 19l8-8"/></symbol>
   <symbol id="i-shell" viewBox="0 0 24 24"><path d="M12 20c-5 0-8-3.5-8-7.5C4 8 7.5 4 12 4s8 4 8 8.5c0 4-3 7.5-8 7.5zM12 20V8M12 20l-4-10M12 20l4-10M12 20L5.5 13M12 20l6.5-7"/></symbol>
+  <symbol id="i-drum" viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7" ry="2.6"/><path d="M5 7v9c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6V7M5 9l14 6M19 9L5 15M4 3l5 3.5M20 3l-5 3.5"/></symbol>
+  <symbol id="i-anchor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v13M8 11h8M4 13c0 4 3.6 7 8 7s8-3 8-7M4 13l-1.5 1.5M20 13l1.5 1.5"/></symbol>
+  <symbol id="i-pig" viewBox="0 0 24 24"><path d="M5 11c0-3.5 3-6 7-6s7 2.5 7 6v2c0 3.3-3 6-7 6s-7-2.7-7-6z"/><path d="M6 7L4.5 4.5 8 5.5M18 7l1.5-2.5-3.5 1"/><ellipse cx="12" cy="14" rx="2.6" ry="1.8"/><path d="M11 14h0M13 14h0M9 10.5h0M15 10.5h0"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></symbol>
   <symbol id="i-owl" viewBox="0 0 24 24"><path d="M6 4l2.5 3h7L18 4v9a6 6 0 01-12 0z"/><circle cx="9.5" cy="11" r="1.8"/><circle cx="14.5" cy="11" r="1.8"/><path d="M11 14.5l1 1.2 1-1.2"/></symbol>
   <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5"/></symbol>
@@ -148,6 +167,10 @@
   </div>
   <div id="hint" class="display hidden"></div>
   <div id="zone" class="display"></div>
+  <div id="pow" class="display hidden" aria-hidden="true"></div>
+  <div id="nm" class="display hidden" aria-live="polite"></div>
+  <div id="vig" aria-hidden="true"></div>
+  <label id="hap" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
   <div id="qte" class="hidden" aria-live="assertive">
     <div class="ring"><svg class="t" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/><circle class="run" id="qrun" cx="50" cy="50" r="46"/></svg>
       <div class="ic"><svg class="i" id="qicon"><use href="#i-up"/></svg></div></div>
@@ -171,12 +194,16 @@
         <div class="who" aria-live="polite"><div id="cname" class="display">Shark Man</div><div id="cline">Fins up, hood up.</div></div>
         <button class="arrow" id="cnext" aria-label="Next character"><svg class="i"><use href="#i-right"/></svg></button>
       </div>
+      <div class="outfits" id="outfits" role="group" aria-label="Outfit"></div>
       <div class="maps" role="group" aria-label="Map">
         <button class="map" data-m="mix"><svg class="i"><use href="#i-mix"/></svg>Mix</button>
         <button class="map" data-m="beach"><svg class="i"><use href="#i-wave"/></svg>Shoreline</button>
         <button class="map" data-m="street"><svg class="i"><use href="#i-street"/></svg>Bay Street</button>
         <button class="map" data-m="forest"><svg class="i"><use href="#i-leaf"/></svg>Mangrove</button>
         <button class="map" data-m="ocean"><svg class="i"><use href="#i-shell"/></svg>Coral Reef</button>
+        <button class="map" data-m="junk"><svg class="i"><use href="#i-drum"/></svg>Junkanoo</button>
+        <button class="map" data-m="wreck"><svg class="i"><use href="#i-anchor"/></svg>Shipwreck</button>
+        <button class="map" data-m="pigs"><svg class="i"><use href="#i-pig"/></svg>Pig Beach</button>
       </div>
       <button class="play display" id="btn"><svg class="i"><use href="#i-play"/></svg>Play</button>
       <div class="keys">← → change lanes and turn · ↑ jump · ↓ slide · swipe on mobile</div>
@@ -246,7 +273,17 @@ window.__boot = function () {
       else if (kind === "whoosh") noise(500, 2600, "bandpass", .3, .12, .35);
       else if (kind === "ok") { tone("triangle", 660, 990, .22, .01, .25); }
       else if (kind === "snap") { noise(5000, 1500, "highpass", .4, .002, .08); }
+      else if (kind === "honk") { tone("square", 415, 400, .12, .01, .18); setTimeout(() => sfx("honk2"), 230); }
+      else if (kind === "honk2") { tone("square", 415, 400, .12, .01, .3); }
     } catch (e) {}
+  }
+  // haptics: the Vibration API where it exists (Android); on iPhone (iOS 18+) toggling a hidden switch control gives a light tap
+  const hapEl = $("hap"), touchDev = "ontouchstart" in window;
+  function buzz(p) {
+    try { if (navigator.vibrate) { navigator.vibrate(p); return; } } catch (e) {}
+    if (!touchDev) return;
+    const n = Array.isArray(p) ? Math.ceil(p.length / 2) : 1;
+    for (let i = 0; i < n; i++) setTimeout(() => { try { hapEl.click(); } catch (e) {} }, i * 110);
   }
   function hoot() { // two-note synthesized owl hoot
     if (muted || !ac) return;
@@ -279,7 +316,7 @@ window.__boot = function () {
   const hemi = new T.HemisphereLight(0xdff6ff, 0xffd9b8, .62); scene.add(hemi);
   // The world scrolls past a player who stays at the origin, so a fixed sun with a fixed shadow box covers everything near the runner.
   const sun = new T.DirectionalLight(0xfff4dc, .9); sun.position.set(7, 16, -2); sun.target.position.set(0, 0, -10); scene.add(sun); scene.add(sun.target);
-  sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -.0005; sun.shadow.normalBias = .03;
+  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -.0005; sun.shadow.normalBias = .03;
   Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 22, bottom: -14, near: 1, far: 50 }); sun.shadow.camera.updateProjectionMatrix();
 
   const matCache = {};
@@ -357,10 +394,18 @@ window.__boot = function () {
     return { g, hips, torso, head, legs, knees, arms, elbows };
   }
 
-  function shark() {
-    const SK = 0x7d95b8, SKD = 0x5a7298, WH = 0xf3efe6, HO = 0x2b56c9, HOD = 0x2247a8, TEE = 0xf7f4ee, BLK = 0x1d1d22;
+  function headdress(h, y, z, sc = 1) {   // Junkanoo feather fan
+    const fan = new T.Group(); fan.position.set(0, y, z); fan.scale.setScalar(sc); h.add(fan);
+    const fe = flat([[0, 0], [.16, .5, 0, 1.25], [-.16, .5, 0, 0]], .02, .012);
+    for (let i = 0; i < 11; i++) { const a = (i - 5) * .24, f = mesh(fe, FEST[i % FEST.length], 0, 0, 0, fan); f.rotation.set(-.25, 0, a); }
+    mesh(new T.TorusGeometry(.42, .06, 8, 24, Math.PI), gloss(0xffd23f, 90), 0, -.05, -.05, fan).rotation.x = -.2;
+    for (let i = 0; i < 5; i++) ell(.06, gloss(FEST[i], 120), (i - 2) * .16, .02 + Math.cos((i - 2) * .5) * .06, -.12, fan);
+  }
+  function shark(of = "classic") {
+    const SK = 0x7d95b8, SKD = 0x5a7298, WH = 0xf3efe6, TEE = 0xf7f4ee,
+          [HO, HOD, BLK, SHA] = { classic: [0x2b56c9, 0x2247a8, 0x1d1d22, 0x2f55c4], hat: [0xd64545, 0xb53636, 0xc8b48a, 0xd64545], junk: [0xf2c230, 0x7b2cbf, 0xf6f6f6, 0x7b2cbf] }[of] || [];
     const b = body({ skin: SK, top: TEE, sleeve: HO, upper: HO, fore: HO, wrist: HOD, hand: SK, pants: BLK, thigh: BLK, shin: BLK,
-                     thighR: [.24, .2], shinR: [.2, .17], cargo: 0x2a2a30, cuff2: 0x26262c, shoe: 0xf6f6f6, shoeAccent: 0x2f55c4, sole: 0xffffff });
+                     thighR: [.24, .2], shinR: [.2, .17], cargo: of === "classic" ? 0x2a2a30 : HOD, cuff2: BLK, shoe: 0xf6f6f6, shoeAccent: SHA, sole: 0xffffff });
     const t = b.torso, h = b.head;
     // open zip hoodie over the white tee: two front panels, back panel, hood and drawstrings
     mesh(lathe([[.34, .0], [.36, .26], [.35, .46], [.39, .72], [.465, .97], [.47, 1.1], [.41, 1.22], [.2, 1.31]], 30, ), HO, 0, 0, 0, t).scale.set(1.0, 1, .76);
@@ -384,6 +429,9 @@ window.__boot = function () {
       for (let i = 0; i < 3; i++) { const gl = mesh(new T.TorusGeometry(.12, .013, 6, 12, 1.4), SKD, s * .42, -.06, .04 + i * .09, h); gl.rotation.set(0, PI2, -.7); }
     }
     const fin = mesh(flat([[-.34, 0], [.0, .12, .0, .66], [.16, .32, .34, 0]], .07, .035), SKD, 0, .38, .14, h); fin.rotation.y = PI2;
+    if (of === "hat") { const hm = new T.MeshPhongMaterial({ color: 0xe9d9a8, shininess: 6, side: T.DoubleSide });   // bucket hat, fin poking through
+      mesh(lathe([[.66, .32], [.62, .38], [.44, .42], [.4, .66], [.2, .72], [0, .73]], 28), hm, 0, 0, .06, h); mesh(lathe([[.405, .43], [.415, .5], [.405, .55]], 28), 0xd64545, 0, 0, .06, h); }
+    if (of === "junk") headdress(h, .3, .32, 1.15);
     return { ...b, sc: .5, stance: "pockets" };
   }
   function floralTex() {
@@ -408,10 +456,12 @@ window.__boot = function () {
     const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(5, 3); return t;
   }
   const roundRect = (w, h, r) => { const x = w / 2, y = h / 2; return [[-x + r, -y], [x - r, -y], [x, -y, x, -y + r], [x, y - r], [x, y, x - r, y], [-x + r, y], [-x, y, -x, y - r], [-x, -y + r], [-x, -y, -x + r, -y]]; };
-  function pine() {
-    const SK = 0xe9a62a, shirt = new T.MeshPhongMaterial({ map: floralTex(), shininess: 8, specular: 0x111111 }), KH = 0xb8a179;
-    const b = body({ skin: SK, top: 0xf7f4ee, sleeve: shirt, upper: shirt, cuff: shirt, pants: KH, thigh: KH, thighR: [.23, .2], shortsCuff: KH, cargo: 0xa38d66,
-                     shin: SK, cuff2: 0xffffff, shoe: 0xf6f6f6, shoeAccent: 0x3d7a4e, sole: 0xffffff });
+  function pine(of = "classic") {
+    const SK = 0xe9a62a, KH = 0xb8a179, tux = of === "tux", capn = of === "captain",
+          shirt = tux ? gloss(0x17171c, 30) : capn ? new T.MeshPhongMaterial({ color: 0x9e1b22, shininess: 20 }) : new T.MeshPhongMaterial({ map: floralTex(), shininess: 8, specular: 0x111111 });
+    const b = body(tux ? { skin: SK, top: 0xfafafa, sleeve: shirt, upper: shirt, fore: shirt, wrist: 0xfafafa, hand: SK, pants: 0x17171c, thighR: [.22, .18], shinR: [.18, .15], shoe: 0x111111, sole: 0x111111 }
+      : { skin: SK, top: 0xf7f4ee, sleeve: shirt, upper: shirt, cuff: shirt, pants: capn ? 0xf2ead8 : KH, thigh: capn ? 0xf2ead8 : KH, thighR: [.23, .2], shortsCuff: capn ? 0xf2ead8 : KH,
+          cargo: capn ? null : 0xa38d66, shin: SK, cuff2: 0xffffff, shoe: capn ? 0x2a1a10 : 0xf6f6f6, shoeAccent: capn ? 0x2a1a10 : 0x3d7a4e, sole: capn ? 0x1a100a : 0xffffff });
     const t = b.torso, h = b.head;
     // open floral shirt over a white tee, collar, gold chain
     for (const s of [-1, 1]) {
@@ -419,7 +469,9 @@ window.__boot = function () {
       panel.scale.set(1, 1.35, .78); panel.material.side = T.DoubleSide;
       const c = mesh(flat([[0, 0], [.2, -.03], [.06, -.26]], .02, .015), shirt, s * .1, 1.34, -.24, t); c.rotation.set(-.6, s > 0 ? Math.PI : 0, 0);
     }
-    mesh(new T.TorusGeometry(.2, .022, 8, 28), gloss(0xe0b23c, 90), 0, 1.3, -.06, t).rotation.x = PI2 - .5;
+    if (!tux) mesh(new T.TorusGeometry(.2, .022, 8, 28), gloss(0xe0b23c, 90), 0, 1.3, -.06, t).rotation.x = PI2 - .5;
+    if (tux) { for (const s of [-1, 1]) ell(.09, 0x111111, s * .09, 1.3, -.3, t, 1, .7, .5); ell(.04, 0x111111, 0, 1.3, -.31, t); }        // bow tie
+    if (capn) for (let i = 0; i < 4; i++) for (const s of [-1, 1]) ell(.035, gloss(0xe0b23c, 100), s * .2, .95 - i * .2, -.33, t);       // brass buttons
     // pineapple head: textured body, layered leaf crown
     const pm = new T.MeshPhongMaterial({ map: pineTex(), shininess: 22, specular: 0x332200 });
     mesh(lathe([[0, -.62], [.32, -.56], [.5, -.32], [.55, 0], [.51, .3], [.36, .54], [.13, .64], [0, .65]], 32), pm, 0, .08, 0, h);
@@ -434,23 +486,32 @@ window.__boot = function () {
     for (const s of [-1, 1]) { mesh(lens, shades, s * .21, .2, -.5, h).rotation.y = s * .18; mesh(cap(.018, .018, .44), 0x0e1114, s * .42, .24, -.4, h).rotation.set(-PI2, 0, 0); }
     mesh(cap(.024, .024, .14), 0x0e1114, -.07, .25, -.56, h).rotation.z = PI2;
     const m = smile(h, .12, .04, -.16, -.52, 0x6a3a0a, 1.6, .024); m.rotation.z += .25;
+    if (tux) { const tp = mesh(lathe([[.36, .62], [.38, .64], [.38, .7], [.3, .72], [.3, 1.18], [.38, 1.22], [.4, 1.24], [.36, 1.26]], 28), 0x111111, 0, .02, 0, h); tp.scale.setScalar(.95); }  // top hat
+    if (capn) { const hm = gloss(0x16161a, 20);   // tricorn
+      mesh(lathe([[.75, .5], [.72, .56], [.44, .58], [.4, .8], [.2, .86], [0, .87]], 3), hm, 0, 0, 0, h).rotation.y = Math.PI / 6;
+      mesh(new T.TorusGeometry(.62, .025, 6, 3), gloss(0xe0b23c, 90), 0, .54, 0, h).rotation.set(PI2, 0, Math.PI / 6); }
     return { ...b, sc: .48, stance: "cross" };
   }
-  function fish() {
-    const SK = 0xf09a52, SKL = 0xffb877, HAIR = 0xf07a3a, TOP = 0xfbf8f4, DEN = 0x5d7fae;
-    const b = body({ slim: true, skin: SK, top: SK, sleeve: SK, pants: SK, wrist: 0xf5f0e6, shoe: 0xfbf3f4, shoeAccent: 0xf3a5b8, sole: 0xffffff });
+  function fish(of = "classic") {
+    const SK = 0xf09a52, SKL = 0xffb877, HAIR = 0xf07a3a, TOP = 0xfbf8f4, DEN = 0x5d7fae, scuba = of === "scuba", WS = 0x137a8f;
+    const b = body(scuba ? { slim: true, skin: SK, top: WS, sleeve: WS, upper: WS, fore: WS, hand: SK, pants: WS, wrist: 0xffd23f, shoe: 0x222222, shoeAccent: 0xffd23f, sole: 0x111111 }
+                         : { slim: true, skin: SK, top: SK, sleeve: SK, pants: SK, wrist: 0xf5f0e6, shoe: 0xfbf3f4, shoeAccent: of === "junk" ? 0xff3d6e : 0xf3a5b8, sole: 0xffffff });
     const t = b.torso, h = b.head;
+    if (scuba) { mesh(cap(.02, .02, 1.1), 0xffd23f, 0, 1.22, -.27, t); ell(.2, 0xffd23f, 0, .7, .3, t, 1, 1.6, .9); ell(.2, 0xffd23f, 0, .7, .3, t, 1, 1.6, .9).position.x = .001; }  // zip stripe + air tank
+    if (!scuba) {
     // crop tank with a shell print, belted denim pleated skirt, pearls, crossbody bag
     mesh(lathe([[.3, .74], [.355, .84], [.372, 1.0], [.36, 1.12], [.3, 1.2], [.22, 1.22]], 30), TOP, 0, 0, 0, t).scale.z = .78;
     for (const s of [-1, 1]) mesh(cap(.025, .025, .22), TOP, s * .2, 1.42, -.03, t);
     const shell = mesh(flat([[0, -.08], [.14, .02, .1, .1], [0, .14, -.1, .1], [-.14, .02, 0, -.08]], .01, .008), 0xb7a7d8, 0, .98, -.29, t); shell.rotation.x = .2;
-    const skirt = new T.MeshPhongMaterial({ color: DEN, shininess: 10, flatShading: true });
+    const skirt = of === "junk" ? new T.MeshPhongMaterial({ color: 0xff3d6e, shininess: 90, specular: 0xffffff, flatShading: true, emissive: 0x330a18 })
+                                : new T.MeshPhongMaterial({ color: DEN, shininess: 10, flatShading: true });
     mesh(lathe([[.44, -.12], [.47, -.1], [.44, .05], [.34, .38], [.3, .5]], 18), skirt, 0, 0, 0, t).scale.z = .82;   // 18 flat-shaded sides read as pleats
     mesh(lathe([[.3, .44], [.315, .47], [.315, .55], [.3, .58]], 26), 0x5a3a24, 0, 0, 0, t).scale.z = .82;            // belt
     mesh(flat(roundRect(.12, .09, .02), .02, .01), gloss(0xd8c08a, 90), 0, .51, -.26, t);
     for (let i = 0; i < 14; i++) { const a = -2.3 + i / 13 * 4.6; ell(.03, gloss(0xffffff, 100), Math.sin(a) * .15, 1.5 - Math.cos(a) * .05 + (Math.abs(a) < 1 ? -.04 : 0), -Math.cos(a) * .11, t); }
     mesh(cap(.015, .015, 1.05), 0x6b4a2e, .05, 1.28, -.1, t).rotation.z = -.62;                // bag strap
     ell(.14, 0x7a5232, .4, .38, -.08, t, 1, .78, .5);
+    }
     // head: big lashed eyes, fin ears, hoops, smirk
     ell(.41, SK, 0, 0, 0, h, 1, 1.04, .96);
     for (const s of [-1, 1]) {
@@ -472,6 +533,9 @@ window.__boot = function () {
     for (let i = 0; i < 9; i++) { const a = (i / 8 - .5) * 2.3, lk = mesh(cap(.12, .07, 1.25), hm, Math.sin(a) * .34, .05, Math.cos(a) * .08 - .06, hair);
       lk.rotation.set(-.12 - Math.cos(a) * .08, 0, -Math.sin(a) * .18); }
     for (const s of [-1, 1]) { const lk = mesh(cap(.1, .06, .95), hm, s * .36, -.1, -.22, h); lk.rotation.set(.1, 0, s * .12); }   // locks in front of the shoulders
+    if (scuba) { const gm = gloss(0x111418, 110); mesh(lathe([[.0, -.02], [.42, -.02], [.44, .08], [.42, .16], [0, .16]], 28), 0x1a1a1a, 0, .36, -.02, h).scale.set(1.04, .5, 1.04);
+      for (const s of [-1, 1]) { const g2 = mesh(flat(roundRect(.26, .2, .07), .05, .02), new T.MeshPhongMaterial({ color: 0x9fe8ff, transparent: true, opacity: .55, shininess: 120 }), s * .15, .42, -.36, h); g2.rotation.x = -.5; } }
+    if (of === "junk") headdress(h, .32, .26, 1.05);
     return { ...b, hair, sc: .52, stance: "hip" };
   }
   const CH = { shark, pine, fish }, ORDER = ["shark", "pine", "fish"],
@@ -479,12 +543,30 @@ window.__boot = function () {
   const P = new T.Group(); P.rotation.order = "YXZ"; scene.add(P);
   // every character is built once; on the menu they stand in a lineup on the map, in a run the chosen one moves into P
   const models = {}, lineup = new T.Group(), slots = {}; scene.add(lineup); lineup.rotation.y = Math.PI;
-  ORDER.forEach((k, i) => { const m = CH[k](); m.g.scale.setScalar(m.sc); m.g.traverse(o => { if (o.isMesh) o.castShadow = true; }); m.key = k; models[k] = m;
+  // unlockable outfits: [id, name, best distance needed]
+  const OUTFITS = { shark: [["classic", "Classic", 0], ["hat", "Bucket Hat", 400], ["junk", "Junkanoo", 1200]],
+                    pine:  [["classic", "Classic", 0], ["tux", "Tuxedo", 400], ["captain", "Captain", 1200]],
+                    fish:  [["classic", "Classic", 0], ["scuba", "Scuba", 400], ["junk", "Junkanoo", 1200]] };
+  let outfit = {}; try { outfit = JSON.parse(localStorage.getItem("idOutfit") || "{}") || {}; } catch (e) {}
+  const ofOf = k => { const o = OUTFITS[k].find(x => x[0] === outfit[k]); return o && best >= o[2] ? o[0] : "classic"; };
+  function buildModel(k) { const m = CH[k](ofOf(k)); m.g.scale.setScalar(m.sc); m.g.traverse(o => { if (o.isMesh) o.castShadow = true; }); m.key = k; return m; }
+  ORDER.forEach((k, i) => { const m = buildModel(k); models[k] = m;
     const s = new T.Group(); s.position.set((1 - i) * 1.55, 0, 0); s.userData.key = k; lineup.add(s); s.add(m.g); slots[k] = s; });
   let model;
+  const ofEl = $("outfits");
+  function renderOutfits() {
+    ofEl.innerHTML = OUTFITS[pick].map(([id, name, req]) => { const locked = best < req;
+      return `<button class="of" data-o="${id}" aria-pressed="${ofOf(pick) === id}"${locked ? " disabled" : ""}>${locked ? '<svg class="i"><use href="#i-lock"/></svg>' : ""}${name}${locked ? " · " + req + " m" : ""}</button>`; }).join("");
+  }
+  function setOutfit(id) {
+    const def = OUTFITS[pick].find(x => x[0] === id); if (!def || best < def[2]) return;
+    outfit[pick] = id; try { localStorage.setItem("idOutfit", JSON.stringify(outfit)); } catch (e) {}
+    const old = models[pick]; old.g.parent && old.g.parent.remove(old.g); const m = buildModel(pick); models[pick] = m; slots[pick].add(m.g); model = m; renderOutfits();
+  }
+  ofEl.addEventListener("click", e => { const b = e.target.closest(".of"); if (b && !b.disabled) setOutfit(b.dataset.o); });
   function choose(k) {
     pick = CH[k] ? k : "shark"; try { localStorage.setItem("bbChar", pick); } catch (e) {}
-    model = models[pick]; $("cname").textContent = INFO[pick][0]; $("cline").textContent = INFO[pick][1];
+    model = models[pick]; $("cname").textContent = INFO[pick][0]; $("cline").textContent = INFO[pick][1]; renderOutfits();
   }
   const cycle = d => choose(ORDER[(ORDER.indexOf(pick) + d + 3) % 3]);
   $("cprev").addEventListener("click", () => cycle(-1)); $("cnext").addEventListener("click", () => cycle(1));
@@ -550,7 +632,7 @@ window.__boot = function () {
       x.lineWidth = sparkle ? 1 + R() * 1.6 : 2 + R() * 3;
       for (const ox of [-N, 0, N]) for (const oy of [-N, 0, N]) { x.beginPath(); x.moveTo(cx - w + ox, cy + oy); x.quadraticCurveTo(cx + ox, cy - 4 + oy, cx + w + ox, cy + oy); x.stroke(); }
     }
-    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(60, 60); t.anisotropy = 4; return t;
+    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(60, 60); t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t;
   }
   const seaTex = waveCanvas(false), glintTex = waveCanvas(true), SEA_K = 60 / 800;   // SEA_K: texture units per world unit
   const sea = new T.Mesh(new T.PlaneGeometry(800, 800), new T.MeshBasicMaterial({ map: seaTex })); sea.rotation.x = -PI2; sea.position.y = -.7; sea.renderOrder = -2000; sea.material.depthWrite = false; scene.add(sea);
@@ -560,7 +642,7 @@ window.__boot = function () {
   function flowWater(dist, t) {
     seaTex.offset.set(Math.sin(t * .35) * .08, dist * SEA_K);
     glintTex.offset.set(t * .03 + Math.cos(t * .5) * .05, dist * SEA_K * .75 - t * .02);
-    glint.material.opacity = .42 + Math.sin(t * 1.7) * .14;
+    glint.material.opacity = (.42 + Math.sin(t * 1.7) * .14) * (1 - nightK * .6);
   }
 
   /* ================= themed road stretches ================= */
@@ -568,7 +650,10 @@ window.__boot = function () {
     beach:  { name: "Nassau Shoreline", top: 0x5b4fa8, bot: 0xffb27f, near: 25, far: 110, light: .6, sun: 1.05, sunCol: 0xffc48a, disk: 0xffa040, cloud: 0xffb3b8, seaTint: 0xffd9c8 },
     street: { name: "Bay Street",       top: 0x3aa0e0, bot: 0xd4ecfa, near: 25, far: 110, light: .66, sun: .9 },
     forest: { name: "Mangrove Cave",    top: 0x16303a, bot: 0x6c9a86, near: 12, far: 70,  light: .68, sun: .45 },
-    ocean:  { name: "Coral Reef Trail", top: 0x0b5f93, bot: 0x2bb7cf, near: 8,  far: 60,  light: .7,  sun: .5 }
+    ocean:  { name: "Coral Reef Trail", top: 0x0b5f93, bot: 0x2bb7cf, near: 8,  far: 60,  light: .7,  sun: .5 },
+    junk:   { name: "Junkanoo Parade",  top: 0x2d1b69, bot: 0xff9f6e, near: 22, far: 100, light: .66, sun: .85, sunCol: 0xffd2a8, disk: 0xff7a3a, cloud: 0xffa8c0 },
+    wreck:  { name: "Pirate Shipwreck", top: 0x3f5f7f, bot: 0xc5d4da, near: 16, far: 85,  light: .66, sun: .7,  sunCol: 0xe8eef2, disk: 0xf2f2e6, cloud: 0xdde3e8, seaTint: 0xb8cdd2 },
+    pigs:   { name: "Pig Beach, Exuma",  top: 0x1a9fe0, bot: 0xd8f6ff, near: 28, far: 120, light: .66, sun: 1.0, seaTint: 0xc6fff6 }
   };
   const THEME_KEYS = Object.keys(THEMES);
   const rnd = (a, b) => a + R() * (b - a), pickOf = a => a[(R() * a.length) | 0];
@@ -791,11 +876,81 @@ window.__boot = function () {
     for (let i = 0; i < 18; i++) mesh(S2(rnd(.6, 1.4)), pickOf(CORALS), rnd(-20, 20), rnd(.5, 9), z + 3.2, g);
   }
 
-  const BUILD = { beach: buildBeach, street: buildStreet, forest: buildForest, ocean: buildOcean };
-  const END = { street: endStreet, forest: endForest, ocean: endOcean };
-  const PAD = { beach: 0xfff1c9, street: 0x5d5d66, forest: 0x6e5233, ocean: 0xfaf0c8 };
-  const ARM = { beach: 0xb98a5a, street: 0x4a4a50, forest: 0x5e432a, ocean: 0xf6e7c0 };
-  const GROUND = { street: [0x56565c, 40], forest: [0x3b281c, 80], ocean: [0xb89d63, 80] };
+  /* ---------- Junkanoo parade: bleachers packed with a crowd, bunting across the street, confetti ---------- */
+  const FEST = [0xff3d6e, 0xffc93c, 0x2ec4b6, 0x7b2cbf, 0xff8a3d, 0x3a86ff, 0x8ac926];
+  function buildJunk(g, o) {
+    roadBase(g, o, 0x3b3946, 0x35333f, true);
+    for (let i = 0; i < o.L * 1.4; i++) mesh(B(.14, .02, .14), pickOf(FEST), rnd(-3.1, 3.1), .07, o.back - R() * o.L, g).rotation.y = R() * 3;   // confetti
+    for (const s of [-1, 1]) {
+      for (let r = 0; r < 3; r++) mesh(B(1.4, .5 + r * .55, o.L - 10), r % 2 ? 0x9aa0ad : 0x8a909c, s * (4.6 + r * 1.3), (.5 + r * .55) / 2, o.zc + 5, g);
+      for (let r = 0; r < 3; r++) for (let z = o.back - 6; z > o.jl + PH + 4; z -= rnd(1.1, 1.7)) {        // the crowd
+        const x = s * (4.6 + r * 1.3) + rnd(-.25, .25), y = .5 + r * .55;
+        mesh(C(.2, .26, .7, 6), pickOf(FEST), x, y + .35, z, g); mesh(S2(.17), pickOf(SKINS), x, y + .85, z, g);
+        if (R() < .3) { const a = mesh(C(.05, .05, .5, 4), pickOf(SKINS), x + .18 * -s, y + 1.0, z, g); a.rotation.z = s * .3; }
+      }
+      for (let z = o.back - 8; z > o.jl + 20; z -= rnd(10, 14)) { const w = rnd(6, 9), hgt = rnd(7, 11);        // painted shopfronts behind the stands
+        mesh(B(4, hgt, w), pickOf(COLONIAL), s * 11.5, hgt / 2, z, g); mesh(B(4.3, .3, w + .3), 0xffffff, s * 11.5, hgt, z, g); }
+    }
+    for (let z = o.back - 10; z > o.jl + 12; z -= 12) {                                   // bunting strung across the road
+      for (const s of [-1, 1]) mesh(C(.07, .07, 6, 6), 0x5a3a24, s * 3.6, 3, z, g);
+      mesh(B(7.2, .03, .03), 0x333333, 0, 5.7, z, g);
+      for (let i = 0; i < 12; i++) { const f = mesh(K(.22, .45, 3), FEST[i % FEST.length], -3.3 + i * .6, 5.45, z, g); f.rotation.x = Math.PI; f.scale.z = .25; }
+    }
+  }
+  function endJunk(g, o) {
+    const z = o.zEnd - 3.5; mesh(B(46, 12, 6), 0x2d1b69, 0, 6, z, g);
+    for (let i = -6; i <= 6; i++) { mesh(C(.9, .9, 1.2, 14), FEST[(i + 7) % FEST.length], i * 3.2, 2.2, z + 3.2, g).rotation.x = PI2; mesh(C(.92, .92, .1, 14), 0xffffff, i * 3.2, 2.2, z + 3.85, g).rotation.x = PI2; }
+  }
+
+  /* ---------- pirate shipwreck: a deck path over the sea, broken masts, cannons, barrels ---------- */
+  function buildWreck(g, o) {
+    mesh(B(6.6, .3, o.L), 0x5e4026, 0, -.1, o.zc, g);
+    for (let z = o.back - .3, i = 0; z > o.zEnd; z -= .55, i++) mesh(B(6.4, .05, .5), i % 3 ? 0x7a5536 : 0x6b4a2e, 0, .08, z, g);
+    for (const s of [-1, 1]) {
+      for (let z = o.back; z - 4 > o.jl + PH + .3; z -= 4) { mesh(C(.09, .1, 1.1, 6), 0x4a3220, s * 3.2, .55, z, g); if (R() < .8) mesh(B(.08, .08, 4), 0x5a3d26, s * 3.2, 1.05, z - 2, g); }
+      for (let z = o.back - 6; z > o.jl + 14; z -= rnd(9, 15)) {
+        const r = R();
+        if (r < .35) { const cz = z; mesh(C(.22, .28, 1.4, 12), 0x26262c, s * 4.3, .75, cz, g).rotation.z = s * -1.45; mesh(B(.8, .45, .9), 0x5a3d26, s * 4.0, .3, cz, g); }   // cannon
+        else if (r < .7) for (let i = 0; i < 3; i++) { mesh(C(.35, .35, .8, 12), 0x8a5a2b, s * rnd(3.9, 4.8), .4, z + rnd(-1, 1), g); }
+        else { mesh(B(.9, .55, .6), 0x6b4423, s * 4.3, .3, z, g); mesh(B(.94, .12, .64), 0xffc93c, s * 4.3, .62, z, g); }
+      }
+      for (let z = o.back - rnd(5, 15); z > o.jl - 10; z -= rnd(12, 22)) mesh(S2(rnd(1, 2.4)), pickOf([0x5f6e7a, 0x6f7f8c]), s * rnd(9, 22), -.4, z, g).scale.y = .6;   // rocks in the sea
+    }
+    for (let z = o.back - 15; z > o.jl + 20; z -= rnd(28, 40)) {                          // leaning masts with torn sails
+      const s = pickOf([-1, 1]), p = new T.Group(); p.position.set(s * 5.3, 0, z); p.rotation.z = s * rnd(.08, .2); g.add(p);
+      mesh(C(.2, .26, 11, 8), 0x4e3422, 0, 5.5, 0, p); mesh(C(.09, .09, 5, 6), 0x4e3422, 0, 8.5, 0, p).rotation.z = PI2;
+      const sail = mesh(B(4.4, 3.2, .05), 0xe8dcc0, 0, 6.8, .1, p); sail.rotation.y = rnd(-.3, .3);
+      mesh(B(1.3, .9, .06), 0x6b4a2e, rnd(-1.2, 1.2), rnd(5.8, 7.6), .14, p);           // a hole patched in the sail
+    }
+  }
+  function endWreck(g, o) {
+    const z = o.zEnd - 3.5; mesh(B(46, 9, 6), 0x5e4026, 0, 3.5, z, g); mesh(B(46.4, .5, 6.4), 0x3d2a1a, 0, 8.1, z, g);
+    for (let i = -7; i <= 7; i++) { mesh(C(.5, .5, .2, 14), 0x2a2018, i * 3, 4.5, z + 3.05, g).rotation.x = PI2; mesh(new T.TorusGeometry(.5, .08, 6, 16), 0xc9a24a, i * 3, 4.5, z + 3.15, g); }
+  }
+
+  /* ---------- Pig Beach, Exuma: bright sand, turquoise water and the famous swimming pigs ---------- */
+  function pigMesh(g, x, z, sc = 1, ry = 0) {
+    const p = new T.Group(); p.position.set(x, 0, z); p.rotation.y = ry; p.scale.setScalar(sc); g.add(p);
+    ell(.55, 0xf4b8b0, 0, .62, 0, p, .85, .75, 1.25); ell(.34, 0xf4b8b0, 0, .82, -.68, p); ell(.16, 0xe89a92, 0, .76, -.98, p, 1, .8, .5);
+    for (const s of [-1, 1]) { ell(.12, 0xe89a92, s * .2, 1.1, -.62, p, .6, 1, .4); mesh(cap(.09, .08, .3), 0xe8a49c, s * .25, .34, -.35, p); mesh(cap(.09, .08, .3), 0xe8a49c, s * .25, .34, .4, p);
+      ell(.05, 0x111111, s * .13, .9, -.95, p); }
+    return p;
+  }
+  function buildPigs(g, o) {
+    mesh(B(13, .5, o.L), 0xf3e6c8, 0, -.3, o.zc, g);
+    roadBase(g, o, 0xf7ecd4, 0xf1e3c6, false);
+    for (let z = o.back; z > o.jl + 8; z -= 1.6) mesh(S2(.08), 0xeadfc4, rnd(-2.5, 2.5), .07, z, g).scale.set(1, .2, 1.6);   // footprints
+    for (let z = o.back - 6; z > o.jl + 18; z -= rnd(7, 13)) { const s = pickOf([-1, 1]); pigMesh(g, s * rnd(4, 5.8), z, rnd(.7, 1.1), rnd(0, 6)); }
+    for (let z = o.back - 10; z > o.jl - 10; z -= rnd(10, 18)) { const s = pickOf([-1, 1]), p = pigMesh(g, s * rnd(8, 14), z, rnd(.7, 1), rnd(0, 6)); p.position.y = -.85; }   // swimming pigs
+    for (let z = o.back - 12; z > o.jl + 22; z -= rnd(14, 22)) { const p = palm(); p.position.set(pickOf([-1, 1]) * rnd(5.2, 6.2), 0, z); g.add(p); }
+    for (let z = o.back - rnd(10, 30); z > o.jl - 10; z -= rnd(35, 55)) sailboat(g, pickOf([-1, 1]) * rnd(16, 26), z);
+  }
+
+  const BUILD = { beach: buildBeach, street: buildStreet, forest: buildForest, ocean: buildOcean, junk: buildJunk, wreck: buildWreck, pigs: buildPigs };
+  const END = { street: endStreet, forest: endForest, ocean: endOcean, junk: endJunk, wreck: endWreck };
+  const PAD = { beach: 0xfff1c9, street: 0x5d5d66, forest: 0x6e5233, ocean: 0xfaf0c8, junk: 0x45434f, wreck: 0x6b4a2e, pigs: 0xfffbf0 };
+  const ARM = { beach: 0xb98a5a, street: 0x4a4a50, forest: 0x5e432a, ocean: 0xf6e7c0, junk: 0x3b3946, wreck: 0x5e4026, pigs: 0xf5e6c8 };
+  const GROUND = { street: [0x56565c, 40], forest: [0x3b281c, 80], ocean: [0xb89d63, 80], junk: [0x2f2d38, 40] };
   let legCount = 0;
 
   // A "leg" is one straight stretch of road in one theme. It ends in a junction you have to turn at.
@@ -846,15 +1001,32 @@ window.__boot = function () {
   const caustic = new T.Mesh(new T.PlaneGeometry(40, 90), new T.MeshBasicMaterial({ map: glintTex.clone(), transparent: true, opacity: .3, blending: T.AdditiveBlending, depthWrite: false, fog: false }));
   caustic.material.map.repeat.set(5, 11); caustic.material.map.needsUpdate = true;
   caustic.rotation.x = -PI2; caustic.position.set(0, .13, -35); sky.add(caustic);
+  // day-night cycle: the run clock S.cyc moves through day, dusk, night and dawn; the menu always shows the map in daylight
+  const starGeo = new T.BufferGeometry(), sp3 = [];
+  for (let i = 0; i < 420; i++) { const a = R() * 6.283, e = .08 + R() * 1.3, r = 150; sp3.push(Math.cos(a) * Math.cos(e) * r, Math.sin(e) * r * .8 + 6, Math.sin(a) * Math.cos(e) * r - 40); }
+  starGeo.setAttribute("position", new T.Float32BufferAttribute(sp3, 3));
+  const stars = new T.Points(starGeo, new T.PointsMaterial({ color: 0xffffff, size: 1.8, sizeAttenuation: false, transparent: true, opacity: 0, fog: false, depthWrite: false })); skyG.add(stars);
+  const moon = mesh(S_(5), new T.MeshBasicMaterial({ color: 0xf3f0e4, fog: false }), -45, 32, -130, skyG); moon.visible = false;
+  const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const DUSK_T = new T.Color(0x6a4c9c), DUSK_B = new T.Color(0xff9466), NIGHT_T = new T.Color(0x070b24), NIGHT_B = new T.Color(0x1b2452), MOONC = new T.Color(0x8ea6ff);
+  const lampM = M(0xfff0b0), winM = M(0x20324a), tS = new T.Color();
+  let nightK = 0, duskK = 0;
   function updateEnv(dt) {
-    const th = THEMES[leg.theme], k = 1 - Math.exp(-2.5 * dt), t = leg.theme, open = t === "beach" || t === "street";
-    tT.set(th.top); tB.set(th.bot); env.top.lerp(tT, k); env.bot.lerp(tB, k);
-    scene.fog.color.copy(env.bot); scene.fog.near += (th.near - scene.fog.near) * k; scene.fog.far += (th.far - scene.fog.far) * k;
-    hemi.intensity += (th.light - hemi.intensity) * k; sun.intensity += (th.sun - sun.intensity) * k;
-    sun.color.lerp(tM.set(th.sunCol || 0xfff4dc), k); sunDisk.material.color.lerp(tM.set(th.disk || 0xfff2a8), k); cloudM.color.lerp(tM.set(th.cloud || 0xffffff), k);
-    sea.material.color.lerp(tM.set(th.seaTint || 0xffffff), k);
+    const th = THEMES[leg.theme], k = 1 - Math.exp(-2.5 * dt), t = leg.theme, open = t === "beach" || t === "street" || t === "junk" || t === "wreck" || t === "pigs";
+    const c = mode === "menu" ? .05 : S.cyc, under = t === "ocean" || t === "forest" ? .75 : 1;
+    nightK = smooth(.44, .54, c) * (1 - smooth(.85, .97, c)) * under;
+    duskK = Math.max(0, 1 - Math.abs(c - .47) / .07) + Math.max(0, 1 - Math.abs(c - .91) / .06) * .8;
+    tT.set(th.top).lerp(DUSK_T, duskK * .55).lerp(NIGHT_T, nightK * .9); tB.set(th.bot).lerp(DUSK_B, duskK * .55).lerp(NIGHT_B, nightK * .85);
+    env.top.lerp(tT, k); env.bot.lerp(tB, k);
+    scene.fog.color.copy(env.bot); scene.fog.near += (th.near - scene.fog.near) * k; scene.fog.far += (th.far * (1 - nightK * .25) - scene.fog.far) * k;
+    hemi.intensity += (th.light * (1 - .45 * nightK) - hemi.intensity) * k; sun.intensity += (th.sun * (1 - .6 * nightK) - sun.intensity) * k;
+    tS.set(th.sunCol || 0xfff4dc).lerp(MOONC, nightK); sun.color.lerp(tS, k);
+    sunDisk.material.color.lerp(tM.set(th.disk || 0xfff2a8), k); cloudM.color.lerp(tM.set(th.cloud || 0xffffff).lerp(NIGHT_B, nightK * .7), k);
+    sea.material.color.lerp(tM.set(th.seaTint || 0xffffff).lerp(NIGHT_B, nightK * .55), k);
+    sunDisk.visible = nightK < .5; moon.visible = nightK > .3; stars.material.opacity = nightK * .95; stars.visible = nightK > .02;
+    lampM.emissive.setRGB(nightK, nightK * .85, nightK * .45); winM.emissive.setRGB(nightK * .55, nightK * .4, nightK * .12); jellyM.emissive.setRGB(.23 + nightK * .5, .1 + nightK * .2, .29 + nightK * .5);
     const key = env.top.getHex() * 16777216 + env.bot.getHex(); if (key !== bgKey) { bgKey = key; paintBg(); }   // re-uploading the sky texture every frame was a big source of lag
-    sea.visible = t === "beach"; skyG.visible = open; birdG.visible = open; uw.visible = t === "ocean"; beams.visible = t === "ocean" || t === "forest"; caustic.visible = t === "ocean";
+    sea.visible = t === "beach" || t === "wreck" || t === "pigs"; skyG.visible = open; birdG.visible = open && nightK < .5; uw.visible = t === "ocean"; beams.visible = (t === "ocean" || t === "forest") && nightK < .6; caustic.visible = t === "ocean";
     sharks.forEach(s => { s.visible = t === "beach"; });
   }
   function updateFx(dt, sp) {
@@ -1023,7 +1195,8 @@ window.__boot = function () {
     legs.forEach(l => killObj(l.g)); legs = []; if (S && S.nextLeg) killObj(S.nextLeg.g);
     obs.forEach(o => scene.remove(o.m)); obs = []; if (S && S.q && S.q.obj) scene.remove(S.q.obj); clearFx();
     S = { dist: 0, v: 14, lane: 0, target: 0, h: 0, vy: 0, slide: 0, t: 0, lean: 0, gap: .6, inv: 0, slow: 0, shake: 0, pending: 0, waterZ: 0, sink: 0,
-          legT: 0, zoneT: 0, nextLeg: null, nextTheme: "beach", ts: 1, q: null, qAt: 70 + R() * 40, swing: 0, creepGap: false };
+          legT: 0, zoneT: 0, nextLeg: null, nextTheme: "beach", ts: 1, q: null, qAt: 70 + R() * 40, swing: 0, bonus: 0, laneT: -9, slideT: -9, nmSlow: 0, swoop: null, swoopAt: 12 + R() * 6, cyc: .05 };
+    dcam = null;
     const qTheme = new URLSearchParams(location.search).get("theme");
     leg = makeLeg(130, 14, qTheme in THEMES ? qTheme : THEMES[mapSel] ? mapSel : pickOf(THEME_KEYS)); scene.add(leg.g); legs.push(leg); populate(-40, jzNow() + 24); seedSharks(); camYaw = 0; pYaw = 0;
     S.nextTheme = pickTheme(leg.theme); hint.classList.add("hidden"); zone.style.opacity = 0; zoneOp = 0;
@@ -1031,14 +1204,15 @@ window.__boot = function () {
   }
   // Fill a stretch of road with obstacles (world z from zFrom down to zTo; more negative = further away).
   function populate(zFrom, zTo) {
-    for (let z = zFrom; z > zTo; z -= Math.max(15, 26 - S.dist * .002) + R() * 8) spawnAt(z);
+    for (let z = zFrom; z > zTo; z -= Math.max(11, 26 - S.dist * .003) + R() * 8) spawnAt(z);
   }
   function spawnAt(z) {
     const lane = ((R() * 3) | 0) - 1, r = R(), other = () => ((lane + 1 + ((R() * 2) | 0)) % 3) - 1;
     const add = (t, l) => { const m = TPL[t].clone(); m.position.set(l * LW, 0, z); scene.add(m); obs.push({ m, lane: l, type: t }); };
-    if (r < .32) add("crate", lane);
-    else if (r < .58) add("limbo", lane);
-    else { add("coral", lane); if (R() < .5) add("coral", other()); }
+    const hard = Math.min(.45, S.dist * .00025);            // more doubled-up obstacles as the run goes on
+    if (r < .32) { add("crate", lane); if (R() < hard) add(pickOf(["limbo", "coral"]), other()); }
+    else if (r < .58) { add("limbo", lane); if (R() < hard) add("crate", other()); }
+    else { add("coral", lane); if (R() < .4 + hard) add("coral", other()); }
   }
 
   // Turn the whole world 90 degrees so the new road runs straight ahead, and swing the camera round to follow.
@@ -1059,46 +1233,72 @@ window.__boot = function () {
   }
   let zoneOp = 0;
   function showZone() { zone.textContent = THEMES[leg.theme].name; S.zoneT = 2.6; }
+  const nmEl = $("nm");
+  function nearMiss() {   // barely made it: bonus distance, a beat of slow motion and a tap
+    S.bonus += 25; S.nmSlow = .32; nmEl.textContent = pickOf(["Close call!", "Whoa!", "Inches!", "Too close!"]) + " +25";
+    nmEl.classList.remove("hidden", "go"); void nmEl.offsetWidth; nmEl.classList.add("go"); sfx("whoosh"); buzz(10);
+  }
   function stumble() {
-    S.inv = 1.4; S.gap -= .4; S.slow = 1.0; S.shake = .45; hoot(); sfx("thud");
+    S.inv = 1.4; S.gap -= .4 + Math.min(.15, S.dist * .00005); S.slow = 1.0; S.shake = .45; hoot(); sfx("thud"); buzz(45);
     if (S.gap <= 0) die("owl"); else if (S.gap < .4) creepSfx();
   }
 
   /* ---------- quick-time events: one threat per stretch, in slow motion, answered with one move ---------- */
+  function mkBanner() {
+    const g = new T.Group(); mesh(C(.09, .11, 3.2, 8), 0xffd23f, 0, 1.6, 0, g); ell(.16, 0xff3d6e, 0, 3.25, 0, g);
+    const arm = pivot(g, 0, 1.75); g.userData.arm = arm; mesh(C(.06, .06, 6.6, 6), 0xffffff, 0, 0, -3.3, arm).rotation.x = PI2;
+    for (let i = 0; i < 7; i++) { const f = mesh(flat([[0, 0], [.25, .5, 0, 1.1], [-.25, .5, 0, 0]], .02, .012), FEST[i % FEST.length], 0, 0, -5.9, arm); f.rotation.set(PI2, 0, (i - 3) * .32); }
+    g.traverse(o => { if (o.isMesh) o.castShadow = true; }); return g;
+  }
+  function mkMast() {
+    const g = new T.Group(), p = new T.Group(); g.add(p); g.userData.p = p;
+    mesh(C(.26, .32, 9, 10), 0x4e3422, 0, 4.5, 0, p); mesh(B(3.4, 2.4, .05), 0xe8dcc0, 0, 6.5, .15, p); mesh(C(.08, .08, 3.8, 6), 0x4e3422, 0, 7.7, 0, p).rotation.z = PI2;
+    g.traverse(o => { if (o.isMesh) o.castShadow = true; }); return g;
+  }
+  function mkPig() { const g = new T.Group(), p = pigMesh(g, 0, 0, 1.7, 0); g.userData.p = p; g.traverse(o => { if (o.isMesh) o.castShadow = true; }); return g; }
+
   const QDEF = {
-    beach:  { kind: "shark", label: d => d < 0 ? "Dodge left!" : "Dodge right!" },
-    ocean:  { kind: "crab",  label: () => "Jump!" },
-    street: { kind: "car",   label: d => d < 0 ? "Swerve left!" : "Swerve right!" },
-    forest: { kind: "vine",  label: () => "Grab the vine!" }
+    beach:  { kind: "shark",  label: d => d < 0 ? "Dodge left!" : "Dodge right!" },
+    ocean:  { kind: "crab",   label: () => "Jump!" },
+    street: { kind: "car",    label: d => d < 0 ? "Swerve left!" : "Swerve right!" },
+    forest: { kind: "vine",   label: () => "Grab the vine!" },
+    junk:   { kind: "banner", label: () => "Slide!" },
+    wreck:  { kind: "mast",   label: () => "Jump the mast!" },
+    pigs:   { kind: "pig",    label: d => d < 0 ? "Dodge left!" : "Dodge right!" }
   };
-  const qEl = $("qte"), qRun = $("qrun"), qIcon = $("qicon"), qLabel = $("qtelabel"), qKey = $("qtekey");
+  const qEl = $("qte"), qRun = $("qrun"), qIcon = $("qicon"), qLabel = $("qtelabel"), qKey = $("qtekey"), powEl = $("pow");
+  function pow(word) { powEl.textContent = word; powEl.classList.remove("hidden", "go"); void powEl.offsetWidth; powEl.classList.add("go"); setTimeout(() => powEl.classList.add("hidden"), 1100); }
   function showPrompt(need, label) {
-    qIcon.innerHTML = `<use href="#i-${need === "jump" ? (S.q.kind === "vine" ? "hand" : "up") : need}"/>`;
-    qLabel.textContent = label; qKey.textContent = need === "jump" ? "↑ / Space · swipe up · tap" : need === "left" ? "← / A · swipe left" : "→ / D · swipe right";
+    qIcon.innerHTML = `<use href="#i-${need === "jump" ? (S.q.kind === "vine" ? "hand" : "up") : need === "slide" ? "down" : need}"/>`;
+    qLabel.textContent = label; qKey.textContent = need === "jump" ? "↑ / Space · swipe up · tap" : need === "slide" ? "↓ / S · swipe down" : need === "left" ? "← / A · swipe left" : "→ / D · swipe right";
     qEl.classList.remove("hidden", "ok"); qEl.classList.remove("go"); void qEl.offsetWidth; qEl.classList.add("go");
   }
   function startQte() {
     const def = QDEF[leg.theme], kind = def.kind, Z0 = -15;
     obs = obs.filter(o => { if (o.m.position.z > -48) { scene.remove(o.m); return false; } return true; });
     const lane = Math.round(S.target); let need, obj, side = 0, open = 0;
-    if (kind === "shark") { side = lane === 0 ? (R() < .5 ? -1 : 1) : lane; need = side < 0 ? "right" : "left"; obj = mkShark(); obj.position.set(side * 9, -2, Z0); }
+    if (kind === "shark" || kind === "pig") { side = lane === 0 ? (R() < .5 ? -1 : 1) : lane; need = side < 0 ? "right" : "left";
+      obj = kind === "shark" ? mkShark() : mkPig(); obj.position.set(side * (kind === "shark" ? 9 : 7.5), kind === "shark" ? -2 : 0, Z0); }
     else if (kind === "car") { const opts = [lane - 1, lane + 1].filter(l => l >= -1 && l <= 1); open = pickOf(opts); need = open < lane ? "left" : "right";
       side = open < 0 ? 1 : -1; obj = mkCar(); obj.position.set(side * 8.5, 0, Z0); obj.rotation.y = side * PI2; sfx("screech"); }
     else if (kind === "crab") { need = "jump"; obj = mkCrab(); obj.position.set(lane * LW, -1.2, Z0); }
+    else if (kind === "banner") { need = "slide"; side = pickOf([-1, 1]); obj = mkBanner(); obj.position.set(side * 3.6, 0, Z0); obj.userData.arm.rotation.y = side > 0 ? 0 : Math.PI; }
+    else if (kind === "mast") { need = "jump"; side = pickOf([-1, 1]); obj = mkMast(); obj.position.set(side * 3.7, 0, Z0); }
     else { need = "jump"; obj = mkVineGap(); obj.position.set(0, 0, Z0 - 2); }
     scene.add(obj);
-    S.q = { kind, need, obj, side, open, lane, z0: obj.position.z, phase: "prompt", t: 0 }; S.ts = .32;
-    showPrompt(need, def.label(need === "left" ? -1 : 1));
+    S.q = { kind, need, obj, side, open, lane, z0: obj.position.z, phase: "prompt", t: 0 }; S.ts = .32 + Math.min(.22, S.dist * .00007);   // less slow motion the further you get
+    showPrompt(need, def.label(need === "left" ? -1 : 1)); buzz(18); S.zoneT = 0;
   }
   function qteInput(a) {
     const q = S.q; if (!q || q.phase !== "prompt") return false;
     if (a !== q.need) { qteFail(); return true; }
-    q.phase = "ok"; q.t = 0; S.ts = 1; qEl.classList.add("ok"); qLabel.textContent = pickOf(["Nice!", "Smooth!", "Too easy!", "Clean!"]); sfx("ok");
+    q.phase = "ok"; q.t = 0; S.ts = 1; qEl.classList.add("ok"); qLabel.textContent = pickOf(["Nice!", "Smooth!", "Too easy!", "Clean!"]); sfx("ok"); buzz(12);
     setTimeout(() => qEl.classList.add("hidden"), 650);
-    if (q.kind === "shark" || q.kind === "car") S.target = Math.max(-1, Math.min(1, Math.round(S.target) + (a === "left" ? -1 : 1)));
-    else if (q.kind === "crab") { S.vy = 13; S.h = Math.max(S.h, .01); sfx("whoosh"); }
+    if (q.kind === "shark" || q.kind === "car" || q.kind === "pig") S.target = Math.max(-1, Math.min(1, Math.round(S.target) + (a === "left" ? -1 : 1)));
+    else if (q.kind === "crab" || q.kind === "mast") { S.vy = 13; S.h = Math.max(S.h, .01); sfx("whoosh"); }
+    else if (q.kind === "banner") { S.slide = 1.1; sfx("whoosh"); }
     else { S.swing = 1; S.h = .01; sfx("whoosh"); }
-    S.qAt = S.dist + 90 + R() * 70;
+    S.qAt = S.dist + Math.max(55, 95 - S.dist * .01) + R() * 60;   // events come round more often as the run goes on
     return true;
   }
   function qteFail() { const q = S.q; q.phase = "fail"; qEl.classList.add("hidden"); S.ts = 1; die(q.kind); }
@@ -1109,10 +1309,14 @@ window.__boot = function () {
     qRun.style.strokeDashoffset = (p * 289).toFixed(1);
     if (q.kind === "shark") {
       if (q.phase === "prompt") { const lx = q.lane * LW; o.position.x = q.side * 9 + (lx - q.side * 9) * p; o.position.y = -2 + Math.sin(p * Math.PI * .8) * 3.4;
-        u.body.rotation.y = q.side * (PI2 + .3); u.body.rotation.z = q.side * (.2 - p * .6); u.jaw.rotation.x = .2 + p * .5; if (q.t < dt * 1.5) splash(o.position.x, -.7, o.position.z); }
-      else if (q.phase === "ok") { o.position.x -= q.side * 9 * dt; o.position.y -= (q.t * 9) * dt; u.body.rotation.z += q.side * dt * 1.2;
+        u.body.rotation.y = q.side * (PI2 + .3); u.body.rotation.z = q.side * (.2 - p * .6); u.jaw.rotation.x = .2 + p * .6; if (q.t < dt * 1.5) splash(o.position.x, -.7, o.position.z); }
+      else if (q.phase === "ok") { o.position.x -= q.side * 9 * dt; o.position.y -= (q.t * 9) * dt; u.body.rotation.z += q.side * dt * 1.2; u.jaw.rotation.x = .05;
         if (!q.splashed && o.position.y < -.6) { q.splashed = true; splash(o.position.x, -.7, o.position.z); } }
       u.tail.rotation.x = Math.sin(S.t * 18) * .3;
+    } else if (q.kind === "pig") {
+      const lx = q.lane * LW;
+      if (q.phase === "prompt") o.position.x = q.side * 7.5 + (lx - q.side * 7.5) * Math.min(1, p * 1.05); else o.position.x -= q.side * 8 * dt;
+      o.rotation.y = q.side > 0 ? PI2 : -PI2; u.p.position.y = Math.abs(Math.sin(S.t * 16)) * .25; u.p.rotation.x = Math.sin(S.t * 16) * .08;
     } else if (q.kind === "car") {
       const e = q.phase === "prompt" ? 1 - Math.pow(1 - Math.min(1, p * 1.6), 3) : 1, bx = q.open < 0 ? LW * .5 : -LW * .5;   // skids in and stops across two lanes
       o.position.x = q.side * 8.5 + (bx - q.side * 8.5) * e; o.rotation.y = q.side * PI2 * (1 - e) + (q.open < 0 ? -1 : 1) * PI2 * e + Math.sin(e * Math.PI) * .4 * q.side;
@@ -1120,33 +1324,49 @@ window.__boot = function () {
       o.position.y = Math.min(0, o.position.y + dt * 3); const sn = Math.sin(S.t * 14);
       [-1, 1].forEach(s => { u["pin" + s].rotation.z = s * (.2 + Math.max(0, sn) * .6); for (let i = 0; i < 3; i++) u["l" + s + i].rotation.x = Math.sin(S.t * 20 + i * 2) * .4; });
       o.position.x += Math.sin(S.t * 6) * dt * 1.5;
+    } else if (q.kind === "banner") {
+      const a = Math.min(1, p * 1.1); u.arm.rotation.y = q.side > 0 ? -a * PI2 * (q.phase === "prompt" ? 1 : 1) : Math.PI + a * PI2;
+      if (q.phase !== "prompt") u.arm.rotation.y += (q.side > 0 ? -1 : 1) * Math.min(1.5, q.t * 3);
+    } else if (q.kind === "mast") {
+      const a = Math.min(1, Math.pow(p * 1.25, 2.2)); u.p.rotation.z = q.side * a * PI2;
+      if (a >= 1 && !q.landed) { q.landed = true; sfx("thud"); S.shake = .25; buzz(15); }
     } else { u.vine.rotation.x = q.phase === "ok" ? Math.min(.9, u.vine.rotation.x + dt * 1.6) : Math.sin(S.t * 1.5) * .12; }
     if (q.phase === "prompt" && p >= 1) qteFail();
     if (q.phase === "ok" && o.position.z > 16) { scene.remove(o); S.q = null; }
   }
 
-  /* ---------- deaths: each one has its own little animation before the game-over card ---------- */
+  /* ---------- deaths: each one has its own animation, camera cut and impact word ---------- */
   const JOKES = {
-    owl:   ["Owl Be Seeing You", ["The owl asked “whooo’s slow?” and you answered by being caught.", "Owls can turn their heads 270°. You couldn’t turn on the speed.", "Turns out the owl didn’t want a hug. It wanted takeout."]],
-    wall:  ["Wall: 1, You: 0", ["That wall has stood there for two hundred years. It wasn’t moving for you.", "Bold strategy, sprinting straight into masonry. It did not pay off.", "You found the wall. The wall found you harder."]],
-    sea:   ["Splash Down", ["The fish scored your dive a 3 out of 10. Lots of splash, no style.", "Running on water still doesn’t work. Science wins again.", "You wanted a swim. Next time try stopping first."]],
-    shark: ["Snack Attack", ["The shark says it was only a little nibble.", "You went shark-spotting. The shark spotted you first.", "Sharks love fast food, and you were very fast."]],
-    crab:  ["Pinched!", ["That crab was being really shellfish.", "Ten legs and it still beat you in a straight line.", "You got clawed and the crab didn’t even say sorry."]],
-    car:   ["Hit and Run(ner)", ["Bay Street traffic: 1. Pedestrian rights: 0.", "Look both ways. Then look again. It’s Nassau.", "The driver swears you came out of nowhere. You say the same."]],
-    vine:  ["Swing and a Miss", ["You reached for the vine and grabbed fresh air. The vine is fine, thanks.", "Tarzan would like a quiet word.", "Mangroves 1, upper body strength 0."]]
+    owl:    ["Owl Be Seeing You", ["The owl asked “whooo’s slow?” and you answered by being caught.", "Owls can turn their heads 270°. You couldn’t turn on the speed.", "Turns out the owl didn’t want a hug. It wanted takeout."]],
+    wall:   ["Wall: 1, You: 0", ["That wall has stood there for two hundred years. It wasn’t moving for you.", "Bold strategy, sprinting straight into masonry. It did not pay off.", "You found the wall. The wall found you harder."]],
+    sea:    ["Splash Down", ["The fish scored your dive a 3 out of 10. Lots of splash, no style.", "Running on water still doesn’t work. Science wins again.", "You wanted a swim. Next time try stopping first."]],
+    shark:  ["Snack Attack", ["The shark says it was only a little nibble.", "You went shark-spotting. The shark spotted you first.", "Sharks love fast food, and you were very fast."]],
+    crab:   ["Pinched!", ["That crab was being really shellfish.", "Ten legs and it still beat you in a straight line.", "You got clawed and the crab didn’t even say sorry."]],
+    car:    ["Hit and Run(ner)", ["Bay Street traffic: 1. Pedestrian rights: 0.", "Look both ways. Then look again. It’s Nassau.", "The driver swears you came out of nowhere. You say the same."]],
+    vine:   ["Swing and a Miss", ["You reached for the vine and grabbed fresh air. The vine is fine, thanks.", "Tarzan would like a quiet word.", "Mangroves 1, upper body strength 0."]],
+    banner: ["Parade Foul", ["You got out-danced by a flag on a stick.", "Junkanoo rule one: duck when the feathers swing.", "The crowd cheered. Not for you."]],
+    mast:   ["Timber!", ["A three-hundred-year-old ship finally got its revenge.", "Captain’s log: the new deckhand tripped over the obvious.", "You walked the plank, then the plank walked you."]],
+    pig:    ["Hogwashed", ["Flattened by a pig on holiday. Exuma sends its regards.", "That pig has been training its whole life for this moment.", "You brought home the bacon. The bacon brought you down."]]
   };
-  let dieSpot = new T.Vector3(), carry = null;
+  const DIE_LEN = { owl: 2.4, wall: 2.1, sea: 2.0, shark: 2.4, crab: 2.4, car: 2.3, vine: 2.0, banner: 2.1, mast: 2.1, pig: 2.2 };
+  const POW = { shark: "CHOMP!", crab: "PINCH!", car: "BAM!", wall: "BONK!", banner: "WHACK!", mast: "BONK!", pig: "OINK!", sea: "SPLASH!", vine: "SPLOOSH!", owl: "GOTCHA!" };
+  let dieSpot = new T.Vector3(), dcam = null;
   function die(kind) {
     if (mode !== "run") return;
-    mode = "dying"; dieKind = kind; dieT = 0; P.visible = true; S.stars = S.splashed = false; hint.classList.add("hidden"); qEl.classList.add("hidden"); S.ts = 1; dieSpot.copy(P.position); carry = null;
-    if (kind === "owl") { S.gap = 0; hoot(); creepSfx(); }
-    else if (kind === "wall" || kind === "car") { S.shake = .5; sfx("thud"); if (kind === "car") sfx("screech"); }
-    else if (kind === "shark" || kind === "crab") sfx("chomp");
+    mode = "dying"; dieKind = kind; dieT = 0; P.visible = true; S.stars = S.splashed = S.hitDone = false;
+    hint.classList.add("hidden"); qEl.classList.add("hidden"); S.ts = 1; dieSpot.copy(P.position); buzz([60, 40, 90]);
+    const sd = S.q ? S.q.side || 1 : 1;   // camera cuts to a side view so you can see what got you
+    dcam = { shark: [-sd * 4.2, 2.6, 5.2, sd * 1.2, 1, -1], crab: [2.6, 1.3, 2.9, .2, .6, -.4], car: [5.2, 2.5, 2.2, 0, 1, -1.2], pig: [-sd * 4.5, 2.2, 3.8, sd * .8, .9, -.6],
+             banner: [3.4, 2.4, 4.2, 0, 1.2, -.8], mast: [3.6, 2.2, 3.6, 0, .8, -1] }[kind] || null;
+    if (kind === "owl") { S.gap = 0; hoot(); creepSfx(); pow(POW.owl); }
+    else if (kind === "wall") { S.shake = .5; sfx("thud"); }
+    else if (kind === "sea" || kind === "vine") {}
+    else if (kind === "car") sfx("screech");
   }
-  const DIE_LEN = { owl: 2.4, wall: 2.1, sea: 2.0, shark: 2.2, crab: 2.0, car: 2.1, vine: 2.0 };
   function updateDeath(dt) {
     dieT += dt; const t = dieT, m = model, q = S.q;
-    const flail = () => { m.legs[0].rotation.x = Math.sin(t * 22) * .9; m.legs[1].rotation.x = -Math.sin(t * 22) * .9; m.arms[0].rotation.x = -2 + Math.sin(t * 25) * .6; m.arms[1].rotation.x = -2 - Math.sin(t * 25) * .6; };
+    const flail = (f = 1) => { m.legs[0].rotation.x = Math.sin(t * 22) * .9 * f; m.legs[1].rotation.x = -Math.sin(t * 22) * .9 * f; m.arms[0].rotation.x = -2 + Math.sin(t * 25) * .6; m.arms[1].rotation.x = -2 - Math.sin(t * 25) * .6; };
+    const hit = (word, ...snd) => { if (S.hitDone) return; S.hitDone = true; pow(word); snd.forEach(sfx); buzz(70); S.shake = Math.max(S.shake, .35); };
     if (dieKind === "owl") {
       if (t < .35) { owl.position.z += (P.position.z + .4 - owl.position.z) * Math.min(1, dt * 14); owl.position.x += (P.position.x - owl.position.x) * Math.min(1, dt * 14);
         owlRig.wings[0].rotation.z = -1.6; owlRig.wings[1].rotation.z = 1.6; }
@@ -1155,6 +1375,7 @@ window.__boot = function () {
         P.position.set(owl.position.x, Math.max(0, owl.position.y + 1.3 - 2.2), owl.position.z - .2); flail(); P.rotation.x = -.3; }
     } else if (dieKind === "wall") {
       if (t < .12) legs.forEach(l => { l.g.position.z += 9 * dt; });
+      if (t > .1) hit("BONK!");
       const k = Math.min(1, t / .25); P.scale.set(1 + .25 * (1 - Math.abs(1 - k * 2)), 1, 1 - .55 * Math.max(0, 1 - Math.abs(t - .2) * 6));
       if (t > .3) { P.rotation.x = Math.max(-1.45, P.rotation.x - dt * 5); P.position.z = dieSpot.z + Math.min(1, (t - .3) * 3) * 1.1; P.position.y = Math.max(0, Math.sin(Math.min(1, (t - .3) * 2.5) * Math.PI) * .6); }
       if (t > .55 && !S.stars) { S.stars = true; dizzy(m.head, .7); sfx("thud"); }
@@ -1163,29 +1384,65 @@ window.__boot = function () {
       if (t < .4) legs.forEach(l => { l.g.position.z += S.v * dt * (1 - t * 2); });
       if (q && q.obj && dieKind === "vine") q.obj.position.z += S.v * dt * Math.max(0, 1 - t * 2);
       P.position.y -= (dieKind === "vine" ? 6 : 4) * t * dt + (t > .2 ? dt * 2 : 0); P.rotation.x = Math.min(.7, P.rotation.x + dt * 1.5); flail();
-      if (!S.splashed && P.position.y < water) { S.splashed = true; splash(P.position.x, water, P.position.z, dieKind === "sea" ? 0xe8fbff : 0x9fc7a6); }
+      if (!S.splashed && P.position.y < water) { S.splashed = true; splash(P.position.x, water, P.position.z, dieKind === "sea" ? 0xe8fbff : 0x9fc7a6); pow(POW[dieKind]); buzz(50); }
     } else if (dieKind === "shark") {
-      const o = q.obj, u = o.userData; u.jaw.rotation.x = .1;
-      if (!carry) carry = { x: P.position.x };
-      o.position.x += -q.side * 7 * dt; o.position.y = Math.max(-3, o.position.y + (t < .3 ? 2 : -7) * dt); u.body.rotation.z -= q.side * dt * 1.5;
-      P.position.set(o.position.x, o.position.y + .3, o.position.z + .4); P.rotation.z = q.side * 1.2; flail();
-      if (!S.splashed && o.position.y < -.6 && t > .4) { S.splashed = true; splash(P.position.x, -.7, P.position.z); }
+      const o = q.obj, u = o.userData, mouth = new T.Vector3();
+      if (t < .2) { o.position.lerp(mouth.set(dieSpot.x, 1.1, dieSpot.z - 1.1), Math.min(1, dt * 14)); u.jaw.rotation.x = 1.0; u.body.rotation.z *= .8; }   // lunge, jaws wide
+      else {
+        hit("CHOMP!", "chomp", "snap"); u.jaw.rotation.x = .05;
+        if (t < .95) { o.position.y = 1.1 + Math.sin(t * 8) * .15; u.body.rotation.x = Math.sin(t * 30) * .22; u.body.rotation.y = q.side * (PI2 + .3) + Math.sin(t * 24) * .3; }   // thrash
+        else { const k = t - .95; o.position.x += q.side * 6 * dt; o.position.y = 1.1 + k * 2.2 - k * k * 9; u.body.rotation.z += q.side * dt * 2;
+          if (!S.splashed && o.position.y < -.6) { S.splashed = true; splash(o.position.x, -.7, o.position.z, 0xf2b8b8, 22); } }
+        const fwd = new T.Vector3(0, -.1, -1.25).applyEuler(u.body.rotation).applyAxisAngle(YA, 0);   // you, held in its jaws
+        P.position.set(o.position.x + fwd.x, o.position.y + fwd.y - .35, o.position.z + fwd.z); P.rotation.set(0, 0, q.side * 1.35); flail(.6);
+        P.visible = o.position.y > -1.4;
+      }
+      u.tail.rotation.x = Math.sin(S.t * 24) * .4;
     } else if (dieKind === "crab") {
-      const o = q.obj; o.position.z = Math.min(o.position.z + S.v * dt * .4, -.9);
-      if (t < .9) { P.position.y = Math.abs(Math.sin(t * 9)) * .5; P.rotation.y = t * 7; m.legs[0].rotation.x = 1.2; m.knees[0].rotation.x = -1.6; m.arms[0].rotation.x = -.9; m.arms[1].rotation.x = -2.6; }
-      else { P.rotation.x = Math.max(-1.45, P.rotation.x - dt * 5); P.position.y = 0; if (!S.stars) { S.stars = true; dizzy(m.head, .7); sfx("thud"); } }
-      [-1, 1].forEach(s => { o.userData["pin" + s].rotation.z = s * (.2 + Math.max(0, Math.sin(t * 20)) * .7); });
+      const o = q.obj, u = o.userData;
+      o.position.lerp(new T.Vector3(dieSpot.x + .55, 0, dieSpot.z - .85), Math.min(1, dt * 10));
+      if (t > .25) { hit("PINCH!", "snap", "chomp");
+        if (t < 1.5) { // hop on one foot, clutching the pinched one
+          P.position.y = Math.abs(Math.sin(t * 9)) * .45; P.rotation.set(0, Math.sin(t * 4) * .6, Math.sin(t * 9) * .12);
+          m.legs[1].rotation.x = .9; m.knees[1].rotation.x = -1.9; m.legs[0].rotation.x = Math.sin(t * 18) * .2;
+          m.arms[0].rotation.set(.9, 0, .5); m.arms[1].rotation.set(.9, 0, -.5); m.elbows[0].rotation.x = .3; m.elbows[1].rotation.x = .3; m.head.rotation.x = .5;
+          u.pin1.rotation.z = .1; }
+        else { P.rotation.x = Math.max(-1.45, P.rotation.x - dt * 5); P.position.y = 0; if (!S.stars) { S.stars = true; dizzy(m.head, .7); sfx("thud"); }
+          [-1, 1].forEach(s => { u["pin" + s].rotation.z = s * (.2 + Math.max(0, Math.sin(t * 16)) * .7); }); o.rotation.z = Math.sin(t * 10) * .15; }   // victory dance
+      } else [-1, 1].forEach(s => { u["pin" + s].rotation.z = s * .8; });
     } else if (dieKind === "car") {
-      const k = Math.min(t, 1.1); P.position.set(dieSpot.x + (S.q ? -S.q.side : 0) * k * 2.2, Math.max(0, 9 * k - 9 * k * k), dieSpot.z + k * 2.5); P.rotation.x = -k * 6; P.rotation.z = k * 2;
-      if (t > 1.1) { P.rotation.set(-1.5, P.rotation.y, 0); if (!S.stars) { S.stars = true; sfx("thud"); dizzy(m.head, .7); S.shake = .3; } }
+      const o = q.obj;
+      if (t < .14) { o.position.lerp(new T.Vector3(dieSpot.x, 0, dieSpot.z - 2.35), Math.min(1, dt * 16)); o.rotation.y += (Math.PI - o.rotation.y) * Math.min(1, dt * 16); }
+      else if (t < .45) { hit("BAM!", "thud"); }                                                          // freeze-frame on impact
+      else { const k = Math.min(t - .45, 1.0); if (!S.honk) { S.honk = true; sfx("honk"); }
+        P.position.set(dieSpot.x + k * .6, Math.max(0, 7 * k - 7 * k * k), dieSpot.z + k * 3.6); P.rotation.x = -k * 7; P.rotation.z = k * 1.5; flail();
+        if (t > 1.45) { P.rotation.set(-1.5, P.rotation.y, 0); P.position.y = 0; if (!S.stars) { S.stars = true; sfx("thud"); dizzy(m.head, .7); S.shake = .3; } } }
+    } else if (dieKind === "banner") {
+      if (t > .05) hit("WHACK!", "thud");
+      if (t < 1) { P.rotation.y = t * 14 * (1 - t * .6); P.position.x = dieSpot.x - (q.side || 1) * t * 1.2; flail(.5); }
+      else { P.rotation.z = Math.min(1.5, P.rotation.z + dt * 6) * -(q.side || 1); if (!S.stars) { S.stars = true; dizzy(m.head, .7); splash(P.position.x, .1, P.position.z, 0xff3d6e, 18); } }
+    } else if (dieKind === "mast") {
+      if (t < .2) legs.forEach(l => { l.g.position.z += S.v * dt * .6; }), q.obj.position.z += S.v * dt * .6;
+      else hit("BONK!", "thud");
+      if (t > .15) { P.rotation.x = Math.min(1.45, P.rotation.x + dt * 6); P.position.z = dieSpot.z - Math.min(1, t) * 1.4; P.position.y = Math.max(0, Math.sin(Math.min(1, t * 2) * Math.PI) * .5); }
+      if (t > .7 && !S.stars) { S.stars = true; dizzy(m.head, .7); }
+    } else if (dieKind === "pig") {
+      const o = q.obj, u = o.userData;
+      if (t < .15) o.position.x += (dieSpot.x + q.side * .9 - o.position.x) * Math.min(1, dt * 14);
+      else { hit("OINK!", "thud"); const k = Math.min(t - .15, 1.1);
+        P.position.set(dieSpot.x - q.side * k * 4.5, Math.max(0, 6 * k - 6 * k * k), dieSpot.z); P.rotation.z = -q.side * k * 6; flail();
+        o.position.x -= q.side * 3 * dt * Math.max(0, 1 - k); u.p.position.y = Math.abs(Math.sin(t * 16)) * .2;
+        if (k >= 1.1 && !S.stars) { S.stars = true; P.rotation.set(0, 0, -q.side * 1.5); splash(P.position.x, .05, P.position.z, 0xfff4dc, 14); dizzy(m.head, .7); } }
+      o.rotation.y = q.side > 0 ? PI2 : -PI2;
     }
     if (t >= DIE_LEN[dieKind]) showOver();
   }
 
   function update(dt, now) {
     S.t += dt; S.slow = Math.max(0, S.slow - dt); S.inv = Math.max(0, S.inv - dt); S.shake = Math.max(0, S.shake - dt);
-    S.v = Math.min(14 + S.dist * .004, 30); const sp = S.v * (S.slow > 0 ? .6 : 1); S.dist += sp * dt;
-    S.gap = Math.min(1, S.gap + dt * .035);
+    S.v = Math.min(14 + S.dist * .005, 36); const sp = S.v * (S.slow > 0 ? .6 : 1); S.dist += sp * dt;   // faster the further you get
+    S.gap = Math.min(.9, S.gap + dt * Math.max(.014, .035 - S.dist * .000012));                               // and the owl recovers less ground
+    if (!S.swoop && S.t > S.swoopAt) { S.swoop = { t: 0 }; S.gap = Math.max(.1, S.gap - .2); creepSfx(); hoot(); buzz(25); }
     S.lane += (S.target - S.lane) * Math.min(1, 12 * dt); S.lean += ((S.target - S.lane) - S.lean) * Math.min(1, 10 * dt);
     if (S.swing > 0) { S.swing = Math.max(0, S.swing - dt * 1.1); S.h = Math.sin((1 - S.swing) * Math.PI) * 2.4; S.vy = 0; }   // vine swing carries you over the gap
     else { S.vy -= 28 * dt; S.h += S.vy * dt; if (S.h <= 0) { S.h = 0; S.vy = 0; } }
@@ -1213,7 +1470,9 @@ window.__boot = function () {
     for (const o of obs) { const z = o.m.position.z;
       if (!o.hit && z > -.75 && z < .75 && Math.abs(S.lane - o.lane) < .6 &&
           (o.type === "coral" || (o.type === "crate" && S.h < .85) || (o.type === "limbo" && S.slide <= 0))) {
-        o.hit = true; if (S.inv <= 0) { stumble(); if (mode !== "run") return; } } }
+        o.hit = true; if (S.inv <= 0) { stumble(); if (mode !== "run") return; } }
+      if (!o.hit && !o.nm && z > .75) { o.nm = true; const dl = Math.abs(S.lane - o.lane);
+        if ((dl > .6 && dl < 1.2 && S.t - S.laneT < .45) || (dl < .6 && ((o.type === "crate" && S.h < 1.45) || (o.type === "limbo" && S.t - S.slideT < .35)))) nearMiss(); } }
     obs = obs.filter(o => { if (o.m.position.z > 6) { scene.remove(o.m); return false; } return true; });
   }
 
@@ -1253,30 +1512,41 @@ window.__boot = function () {
   }
   function poseOwl(dt) {
     const g = S.gap, z = 2.4 + g * 8, t = S.t * 11;
-    owl.position.z += (z - owl.position.z) * Math.min(1, 6 * dt);
+    if (S.swoop && mode === "run") {   // the owl takes off, sweeps low over your head to the road ahead, then circles back behind you
+      const w = S.swoop; w.t += dt; const k = Math.min(1, w.t / 2.6), a = Math.sin(k * Math.PI);
+      owl.position.set(S.lane * LW + Math.sin(k * 6.28) * 2, .2 + a * 3.4, z + (-11 - z) * a); owl.rotation.y = k > .5 ? Math.PI : 0;
+      owlRig.wings[0].rotation.z = -1.3 - Math.sin(S.t * 18) * .9; owlRig.wings[1].rotation.z = 1.3 + Math.sin(S.t * 18) * .9;
+      owlRig.legs[0].rotation.x = owlRig.legs[1].rotation.x = .9;
+      if (k >= 1) { S.swoop = null; owl.rotation.y = 0; S.swoopAt = S.t + Math.max(8, 20 - S.dist * .005) + R() * 6; }
+      return;
+    }
+    owl.position.z += (z - owl.position.z) * Math.min(1, 6 * dt); owl.position.y += (0 - owl.position.y) * Math.min(1, 6 * dt);
     owl.position.x += (S.lane * LW - owl.position.x) * Math.min(1, 3 * dt);
     const sw = Math.sin(t);
     owlRig.legs[0].rotation.x = sw * .8; owlRig.legs[1].rotation.x = -sw * .8;
     owlRig.wings[0].rotation.z = -.15 - Math.abs(sw) * .5; owlRig.wings[1].rotation.z = .15 + Math.abs(sw) * .5;
-    owlRig.head.rotation.z = .35 + Math.sin(S.t * 3) * .12; owl.position.y = Math.abs(sw) * .12;
+    owlRig.head.rotation.z = .35 + Math.sin(S.t * 3) * .12; owl.position.y = Math.max(owl.position.y, Math.abs(sw) * .12);
   }
 
   /* ---------- HUD + adaptive quality ---------- */
   const distEl = $("dist"), hbest = $("hudbest"), owlFill = $("owlfill"), hudV = {};
-  let pr = Math.min(devicePixelRatio || 1, 1.75), pfT = 0, pfN = 0, pfPrev = 0;
+  // render resolution: phones get up to 2.25x (an iPhone screen is 3x, and 1.75x looked grainy there); steps down only if frames really drag
+  const DPR = devicePixelRatio || 1, prMin = DPR >= 2 ? 1.5 : 1;
+  let pr = Math.min(DPR, touchDev ? 2.25 : 2), pfT = 0, pfN = 0, pfPrev = 0;
   function perf(t) {
     const d = t - pfPrev; pfPrev = t; if (d <= 0 || d > 250 || mode !== "run") { pfT = pfN = 0; return; }
     pfT += d; pfN++;
     if (pfT < 3000) return;
     const avg = pfT / pfN; pfT = pfN = 0;
-    if (avg > 21) {
-      if (pr > 1) { pr = Math.max(1, pr - .25); resize(); }
+    if (avg > 23) {
+      if (pr > prMin) { pr = Math.max(prMin, pr - .25); resize(); }
+      else if (sun.shadow.mapSize.x > 1024) { sun.shadow.mapSize.set(1024, 1024); sun.shadow.map && sun.shadow.map.dispose(); sun.shadow.map = null; }
+      else if (pr > 1) { pr = Math.max(1, pr - .25); resize(); }
       else if (sun.shadow.mapSize.x > 512) { sun.shadow.mapSize.set(512, 512); sun.shadow.map && sun.shadow.map.dispose(); sun.shadow.map = null; }
-      else if (pr > .75) { pr = .75; resize(); }
     }
   }
   function drawHud() {
-    const d = Math.floor(S.dist), ow = Math.round((1 - Math.max(0, S.gap)) * 100);
+    const d = Math.floor(S.dist + S.bonus), ow = Math.round((1 - Math.max(0, S.gap)) * 100);
     if (d !== hudV.d) { hudV.d = d; distEl.innerHTML = d + "<small>m</small>"; }
     if (best !== hudV.b) { hudV.b = best; hbest.textContent = "Best " + best + " m"; }
     if (ow !== hudV.ow) { hudV.ow = ow; owlFill.style.width = ow + "%"; }
@@ -1289,7 +1559,8 @@ window.__boot = function () {
   function frame(t) {
     requestAnimationFrame(frame);
     const rdt = Math.min((t - last) / 1000, .033), now = t / 1000; last = t;
-    const dt = rdt * (mode === "run" ? S.ts : 1);
+    if (mode === "run") { S.nmSlow = Math.max(0, S.nmSlow - rdt); S.cyc = (S.cyc + rdt / 160) % 1; }
+    const dt = rdt * (mode === "run" ? S.ts * (S.nmSlow > 0 ? .45 : 1) : 1);
     if (mode === "run") { update(dt, now); if (mode === "run") pose(dt); }
     else if (mode === "menu") { S.t += rdt; S.waterZ += 3 * rdt; menuT += rdt; selT += rdt; ORDER.forEach(k => stance(models[k], menuT, k === pick));
       ORDER.forEach(k => { const s = slots[k], rel = (ORDER.indexOf(k) - ORDER.indexOf(pick) + 3) % 3, e = Math.min(1, rdt * 7);   // chosen character slides to centre stage
@@ -1308,6 +1579,8 @@ window.__boot = function () {
     if (mode === "menu") {
       const a = cam.aspect, hf = Math.atan(Math.tan(cam.fov * Math.PI / 360) * a), dz = Math.max(3.9, Math.min(9, 2.6 / Math.tan(hf)));
       cp.set(Math.sin(menuT * .2) * .4, 1.3 + dz * .05, dz); lk.set(0, .45 + (a < .8 ? -.4 : 0), 0);
+    } else if ((mode === "dying" || mode === "over") && dcam) {
+      cp.set(dieSpot.x + dcam[0], dcam[1], dieSpot.z + dcam[2]); lk.set(dieSpot.x + dcam[3], dcam[4], dieSpot.z + dcam[5]);
     } else if (mode === "dying" || mode === "over") {
       const fp = P.position, up = dieKind === "owl" ? Math.min(P.position.y, 6) : 0;
       cp.set(fp.x * .5 + 1.6, 3.2 + up * .6, fp.z + 6.5); lk.set(fp.x, 1 + up, fp.z - 1);
@@ -1326,15 +1599,16 @@ window.__boot = function () {
     showZone(); playAmbient(); setTimeout(() => creepSfx(), 350); hudV.d = hudV.b = hudV.ow = null;
   }
   function showOver() {
-    const d = Math.floor(S.dist), isBest = d > best; if (isBest) { best = d; try { localStorage.setItem("idBest", best); } catch (e) {} }
+    const d = Math.floor(S.dist + S.bonus), isBest = d > best, prev = best; if (isBest) { best = d; try { localStorage.setItem("idBest", best); } catch (e) {} }
+    const unlocked = []; ORDER.forEach(k => OUTFITS[k].forEach(([, name, req]) => { if (req > prev && req <= best) unlocked.push(name + " for " + INFO[k][0]); }));
     const j = JOKES[dieKind] || JOKES.wall; $("otitle").textContent = j[0]; $("ojoke").textContent = pickOf(j[1]);
-    $("odist").textContent = d; $("obest").textContent = best; $("onew").classList.toggle("hidden", !isBest);
+    $("odist").textContent = d; $("obest").textContent = best; $("onew").classList.toggle("hidden", !isBest); $("onew").textContent = unlocked.length ? "New best! Unlocked " + unlocked.join(" and ") : "New best!";
     const ot = $("otitle"); ot.style.animation = "none"; void ot.offsetWidth; ot.style.animation = "";
     mode = "over"; hud.classList.add("hidden"); over.classList.remove("hidden"); $("again").focus();
   }
   function toMenu() {
     P.remove(model.g); slots[pick].add(model.g); model.g.position.set(0, 0, 0); model.g.rotation.set(0, 0, 0); model.g.scale.setScalar(model.sc);
-    reset(); mode = "menu"; menuT = 0; over.classList.add("hidden"); hud.classList.add("hidden"); menu.classList.remove("hidden"); $("mbest").textContent = "Best " + best + " m"; btn.focus();
+    reset(); mode = "menu"; menuT = 0; renderOutfits(); over.classList.add("hidden"); hud.classList.add("hidden"); menu.classList.remove("hidden"); $("mbest").textContent = "Best " + best + " m"; btn.focus();
   }
   function again() { P.remove(model.g); slots[pick].add(model.g); start(); }
 
@@ -1345,10 +1619,10 @@ window.__boot = function () {
     if (S.q && S.q.phase === "prompt") return qteInput(d < 0 ? "left" : "right");
     const jz = jzNow();
     if (jz > -16 && jz < 2.6) { if (leg.allowed.includes(d)) { S.pending = d; if (jz >= -.4) doTurn(d); } return; } // near a junction, left/right means turn
-    S.target = Math.max(-1, Math.min(1, S.target + d));
+    const nt = Math.max(-1, Math.min(1, S.target + d)); if (nt !== S.target) S.laneT = S.t; S.target = nt;
   };
   const jump = () => { if (mode !== "run") return; if (S.q && S.q.phase === "prompt") return qteInput("jump"); if (S.h === 0 && S.swing <= 0) { S.vy = 10; S.slide = 0; } };
-  const slide = () => { if (mode !== "run") return; if (S.q && S.q.phase === "prompt") return qteInput("slide"); S.slide = .7; if (S.h > 0) S.vy = Math.min(S.vy, -12); };
+  const slide = () => { if (mode !== "run") return; if (S.q && S.q.phase === "prompt") return qteInput("slide"); S.slide = .7; S.slideT = S.t; if (S.h > 0) S.vy = Math.min(S.vy, -12); };
   addEventListener("keydown", e => {
     const k = e.code;
     if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(k)) e.preventDefault();
