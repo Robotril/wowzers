@@ -362,6 +362,7 @@ window.__boot = function () {
   let li = 0; ["lw1", "lw2"].forEach(id => { const el = $(id); el.innerHTML = [...el.textContent].map(c => `<span class="m"><span class="ch" style="--i:${li++}">${c}</span></span>`).join(""); });
   // clay squish on any button press
   document.addEventListener("pointerdown", e => { const b = e.target.closest(".play, .map, .of, .arrow, .ghost, .more, .drow, .tbtn"); if (!b || b.disabled) return;
+    initAudio(); if (ac && ac.state === "suspended") ac.resume(); sfx("pop");
     b.classList.remove("squish"); void b.offsetWidth; b.classList.add("squish"); });
   document.addEventListener("animationend", e => { if (e.animationName === "squish") e.target.classList.remove("squish"); });
 
@@ -378,7 +379,7 @@ window.__boot = function () {
     } catch (e) { ac = null; }
   }
   function playAmbient() {
-    musicOn = true; initAudio(); if (ac && ac.state === "suspended") ac.resume();
+    musicOn = true; initAudio(); initAmb(); if (ac && ac.state === "suspended") ac.resume();
     music.play().catch(() => {}); gulls.play().catch(() => {});
   }
   function creepSfx() {   // the owl's creepy crescendo: on first appearance and whenever it closes in
@@ -387,7 +388,7 @@ window.__boot = function () {
   }
   function aenv(g, t0, peak, a, d) { g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(peak, t0 + a); g.gain.exponentialRampToValueAtTime(.0008, t0 + a + d); }
   // small synthesized effects: noise through a filter, or a pitched oscillator
-  function sfx(kind) {
+  function sfx(kind, opt) {
     if (muted || !ac) return;
     try {
       const t0 = ac.currentTime, g = ac.createGain(); g.connect(master);
@@ -404,6 +405,44 @@ window.__boot = function () {
       else if (kind === "snap") { noise(5000, 1500, "highpass", .4, .002, .08); }
       else if (kind === "honk") { tone("square", 415, 400, .12, .01, .18); setTimeout(() => sfx("honk2"), 230); }
       else if (kind === "honk2") { tone("square", 415, 400, .12, .01, .3); }
+      // movement
+      else if (kind === "hop") noise(600, 2400, "bandpass", .14, .06, .2);
+      else if (kind === "land") { tone("sine", 95, 48, .28, .004, .14); noise(700, 150, "lowpass", .12, .004, .12); }
+      else if (kind === "swish") noise(3200, 450, "lowpass", .16, .03, .32);
+      else if (kind === "swoosh") noise(900, 2300, "bandpass", .1, .02, .12);
+      else if (kind === "nm") { const f = 620 * (1 + Math.min(8, opt || 1) * .11); tone("triangle", f, f * 1.5, .14, .005, .22); }
+      // quick-time events
+      else if (kind === "heart") { tone("sine", 72, 44, .5, .004, .14); setTimeout(() => sfx("heart2"), 170); }
+      else if (kind === "heart2") tone("sine", 64, 40, .35, .004, .16);
+      else if (kind === "chime") { tone("triangle", 880, 880, .16, .005, .3); setTimeout(() => sfx("chime2"), 90); }
+      else if (kind === "chime2") tone("triangle", 1109, 1109, .14, .005, .45);
+      // owl
+      else if (kind === "flap") noise(420, 160, "lowpass", .22 * (opt || 1), .01, .09);
+      else if (kind === "screech") { tone("sawtooth", 1700, 1150, .07, .02, .5); tone("sawtooth", 1730, 1180, .05, .02, .5); noise(3600, 2600, "bandpass", .12, .02, .5); }
+      else if (kind === "dive") tone("sine", 1900, 330, .12, .02, .45);
+      else if (kind === "kick") { tone("sine", 130, 42, .5 * (opt || 1), .002, .2); }
+      else if (kind === "tom") tone("sine", 190, 95, .3, .002, .2);
+      else if (kind === "cow") { tone("square", 800, 790, .045, .001, .07); tone("square", 540, 535, .035, .001, .07); }
+      else if (kind === "whistle") { const o = ac.createOscillator(), l = ac.createOscillator(), lg = ac.createGain(); o.frequency.value = 2300; l.frequency.value = 22; lg.gain.value = 180;
+        l.connect(lg); lg.connect(o.frequency); o.connect(g); aenv(g, t0, .05, .02, .6); o.start(t0); l.start(t0); o.stop(t0 + .7); l.stop(t0 + .7); }
+      // ambience events
+      else if (kind === "drip") { const f = 1200 + R() * 900; tone("sine", f, f * 1.6, .05, .002, .15); }
+      else if (kind === "frog") { for (let i = 0; i < 3; i++) setTimeout(() => sfx("frog1"), i * 90); }
+      else if (kind === "frog1") tone("square", 115, 95, .035, .005, .06);
+      else if (kind === "cricket") { for (let i = 0; i < 3; i++) setTimeout(() => sfx("crk"), i * 60); }
+      else if (kind === "crk") tone("sine", 4600, 4500, .02, .002, .03);
+      else if (kind === "bubble") tone("sine", 280 + R() * 200, 900 + R() * 400, .045, .005, .08);
+      else if (kind === "horn") tone("square", 310, 300, .025, .02, .4);
+      // deaths
+      else if (kind === "growl") { tone("sawtooth", 78, 55, .2, .05, .8); noise(400, 120, "lowpass", .25, .05, .8); }
+      else if (kind === "squeal") { tone("sawtooth", 900, 1500, .08, .02, .25); setTimeout(() => sfx("squeal2"), 220); }
+      else if (kind === "squeal2") tone("sawtooth", 1400, 700, .07, .01, .3);
+      else if (kind === "crack") { noise(6000, 1200, "highpass", .45, .002, .25); tone("sine", 110, 40, .4, .01, .4); }
+      else if (kind === "ooh") { for (let i = 0; i < 7; i++) { const f = 190 + R() * 140; tone("triangle", f, f * .82, .035, .12, .9); } }
+      // menu
+      else if (kind === "pop") tone("sine", 560, 880, .09, .003, .06);
+      else if (kind === "ding") { tone("sine", 1320, 1320, .13, .003, .6); tone("sine", 2640, 2640, .04, .003, .3); }
+      else if (kind === "fanfare") [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => { if (!ac) return; const g2 = ac.createGain(), o = ac.createOscillator(); o.type = "triangle"; o.frequency.value = f; o.connect(g2); g2.connect(master); aenv(g2, ac.currentTime, .14, .005, i === 3 ? .7 : .25); o.start(); o.stop(ac.currentTime + 1); }, i * 110));
     } catch (e) {}
   }
   // haptics: the Vibration API where it exists (Android); on iPhone (iOS 18+) toggling a hidden switch control gives a light tap
@@ -414,6 +453,51 @@ window.__boot = function () {
     if (!touchDev) return;
     const n = Array.isArray(p) ? Math.ceil(p.length / 2) : 1;
     for (let i = 0; i < n; i++) setTimeout(() => { try { hapEl.click(); } catch (e) {} }, i * 110);
+  }
+  // footsteps that match the ground under you
+  const SURF = { beach: "sand", pigs: "sand", ocean: "reef", forest: "wood", wreck: "wood", street: "road", junk: "road" };
+  function step(th) {
+    if (muted || !ac) return;
+    try { const t0 = ac.currentTime, g = ac.createGain(), f = ac.createBiquadFilter(), src = ac.createBufferSource(), sf = SURF[th] || "road";
+      src.buffer = noiseBuf; src.playbackRate.value = .8 + R() * .4;
+      if (sf === "sand") { f.type = "lowpass"; f.frequency.value = 850 + R() * 300; aenv(g, t0, .07, .006, .1); }
+      else if (sf === "wood") { f.type = "bandpass"; f.frequency.value = 480 + R() * 160; f.Q.value = 2; aenv(g, t0, .14, .002, .07); }
+      else if (sf === "road") { f.type = "highpass"; f.frequency.value = 1600; aenv(g, t0, .05, .001, .04); }
+      else { f.type = "lowpass"; f.frequency.value = 420; aenv(g, t0, .09, .012, .13); }
+      src.connect(f); f.connect(g); g.connect(master); src.start(t0, R() * .5); src.stop(t0 + .22);
+      if (sf === "wood") { const o = ac.createOscillator(), og = ac.createGain(); o.frequency.setValueAtTime(140, t0); o.frequency.exponentialRampToValueAtTime(70, t0 + .08); o.connect(og); og.connect(master); aenv(og, t0, .08, .002, .08); o.start(t0); o.stop(t0 + .12); }
+    } catch (e) {}
+  }
+  // ambient soundscapes: looping noise beds (surf, city rumble, cave air) plus scheduled events per map, and a Junkanoo rhythm
+  let amb = null;
+  function initAmb() {
+    if (!ac || amb) return;
+    const bed = (type, freq, q) => { const src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); src.buffer = noiseBuf; src.loop = true; f.type = type; f.frequency.value = freq; if (q) f.Q.value = q;
+      g.gain.value = 0; src.connect(f); f.connect(g); g.connect(master); src.start(); return g; };
+    amb = { waves: bed("lowpass", 520), rumble: bed("lowpass", 170), air: bed("bandpass", 1300, .7), ev: 1, beat: 0, bi: 0 };
+  }
+  const JUNK_BEAT = ["kick", "cow", "tom", "cow", "kick", "kick", "tom", "cow"];
+  function ambTick(dt) {
+    if (!amb || !ac) return;
+    const th = leg.theme, t = ac.currentTime, live = !muted && musicOn, sea = th === "beach" || th === "pigs" || th === "wreck";
+    const swell = .045 + .04 * Math.max(0, Math.sin(t * .55)) + .015 * Math.sin(t * 1.7);
+    amb.waves.gain.setTargetAtTime(live && sea ? swell : 0, t, .4);
+    amb.rumble.gain.setTargetAtTime(live ? (th === "street" ? .045 : th === "ocean" ? .09 : th === "junk" ? .025 : 0) : 0, t, .5);
+    amb.air.gain.setTargetAtTime(live && th === "forest" ? .012 : 0, t, .5);
+    const gv = live && sea ? .1 * set.mv * (1 - nightK) : 0; if (Math.abs(gulls.volume - gv) > .01) gulls.volume = gv;
+    if (!live) return;
+    amb.ev -= dt;
+    if (amb.ev <= 0) { amb.ev = rnd(.35, 1.4);
+      if (th === "forest") sfx(R() < .7 ? "drip" : "frog");
+      else if (th === "ocean") sfx("bubble");
+      else if (th === "street" && R() < .18) sfx("horn");
+      else if (th === "junk" && R() < .12) sfx("whistle");
+      if (nightK > .5 && th !== "ocean" && R() < .7) sfx("cricket"); }
+    const bossOn = mode === "run" && S.boss;
+    if ((th === "junk" && mode !== "dying") || bossOn) { amb.beat -= dt;   // drums: the parade rhythm, or a heavy boss beat
+      if (amb.beat <= 0) { amb.beat = bossOn ? .42 : .28;
+        if (bossOn) sfx(amb.bi % 2 ? "tom" : "kick", 1.2); else { const k = JUNK_BEAT[amb.bi % 8]; if (k === "kick") sfx("kick", .55); else sfx(k); }
+        amb.bi++; } }
   }
   function hoot() { // two-note synthesized owl hoot
     if (muted || !ac) return;
@@ -1628,7 +1712,7 @@ window.__boot = function () {
     const words = S.combo > 1 ? `x${S.combo} ` : "", txt = pickOf(["Close call!", "Whoa!", "Inches!", "Too close!"]) + " +" + pts;
     nmEl.innerHTML = (words ? `<b>${words}</b>` : "") + [...txt].map((c, i) => `<span class="c" style="--i:${i}">${c === " " ? "&nbsp;" : c}</span>`).join("");
     nmEl.style.fontSize = Math.min(1 + (S.combo - 1) * .12, 1.6) + "em";
-    nmEl.classList.remove("hidden", "go"); void nmEl.offsetWidth; nmEl.classList.add("go"); sfx("whoosh"); buzz(S.combo > 2 ? [10, 30, 10] : 10);
+    nmEl.classList.remove("hidden", "go"); void nmEl.offsetWidth; nmEl.classList.add("go"); sfx("whoosh"); sfx("nm", S.combo); buzz(S.combo > 2 ? [10, 30, 10] : 10);
   }
   function stumble() {
     S.inv = 1.4; S.gap -= .4 + Math.min(.15, S.dist * .00005); S.slow = 1.0; S.shake = .45; hoot(); sfx("thud"); buzz(45);
@@ -1694,7 +1778,7 @@ window.__boot = function () {
   function qteInput(a) {
     const q = S.q; if (!q || q.phase !== "prompt") return false;
     if (a !== q.need) { qteFail(); return true; }
-    q.phase = "ok"; q.t = 0; S.ts = 1; S.qWins++; qEl.classList.add("ok"); qLabel.textContent = pickOf(["Nice!", "Smooth!", "Too easy!", "Clean!"]); sfx("ok"); buzz(12);
+    q.phase = "ok"; q.t = 0; S.ts = 1; S.qWins++; qEl.classList.add("ok"); qLabel.textContent = pickOf(["Nice!", "Smooth!", "Too easy!", "Clean!"]); sfx("chime"); buzz(12);
     setTimeout(() => qEl.classList.add("hidden"), 650);
     if (q.kind === "shark" || q.kind === "car" || q.kind === "pig") S.target = Math.max(-1, Math.min(1, Math.round(S.target) + (a === "left" ? -1 : 1)));
     else if (q.kind === "crab" || q.kind === "mast") { S.vy = 13; S.h = Math.max(S.h, .01); sfx("whoosh"); }
@@ -1713,7 +1797,7 @@ window.__boot = function () {
   }
   function turnInput(d) {
     if (!leg.allowed.includes(d)) { qLabel.textContent = "Other way!"; buzz(8); return; }
-    S.pending = d; S.tq.phase = "ok"; S.ts = 1; S.qWins++; qEl.classList.add("ok"); qLabel.textContent = pickOf(["Nice!", "Smooth!", "Clean!"]); sfx("ok"); buzz(10);
+    S.pending = d; S.tq.phase = "ok"; S.ts = 1; S.qWins++; qEl.classList.add("ok"); qLabel.textContent = pickOf(["Nice!", "Smooth!", "Clean!"]); sfx("chime"); buzz(10);
     setTimeout(() => { if (!(S.q && S.q.phase === "prompt") && !(S.tq && S.tq.phase === "prompt")) qEl.classList.add("hidden"); }, 500);
   }
   function qteFail() { const q = S.q; q.phase = "fail"; qEl.classList.add("hidden"); S.ts = 1; die(q.kind); }
@@ -1804,7 +1888,7 @@ window.__boot = function () {
       const o = q.obj, u = o.userData, mouth = tv;
       if (t < .2) { o.position.lerp(mouth.set(dieSpot.x, 1.1, dieSpot.z - 1.1), Math.min(1, dt * 14)); u.jaw.rotation.x = 1.0; u.body.rotation.z *= .8; }   // lunge, jaws wide
       else {
-        hit("CHOMP!", "chomp", "snap"); u.jaw.rotation.x = .05;
+        hit("CHOMP!", "chomp", "snap", "growl"); u.jaw.rotation.x = .05;
         if (t < .95) { o.position.y = 1.1 + Math.sin(t * 8) * .15; u.body.rotation.x = Math.sin(t * 30) * .22; u.body.rotation.y = q.side * (PI2 + .3) + Math.sin(t * 24) * .3; }   // thrash
         else { const k = t - .95; o.position.x += q.side * 6 * dt; o.position.y = 1.1 + k * 2.2 - k * k * 9; u.body.rotation.z += q.side * dt * 2;
           if (!S.splashed && o.position.y < -.6) { S.splashed = true; splash(o.position.x, -.7, o.position.z, 0xf2b8b8, 22); } }
@@ -1833,18 +1917,18 @@ window.__boot = function () {
         P.position.set(dieSpot.x + k * .6, Math.max(0, 7 * k - 7 * k * k), dieSpot.z + k * 3.6); P.rotation.x = -k * 7; P.rotation.z = k * 1.5; flail();
         if (t > 1.45) { P.rotation.set(-1.5, P.rotation.y, 0); P.position.y = 0; if (!S.stars) { S.stars = true; sfx("thud"); dizzy(m.head, .7); S.shake = .3; } } }
     } else if (dieKind === "banner") {
-      if (t > .05) hit("WHACK!", "thud");
+      if (t > .05) hit("WHACK!", "thud", "ooh");
       if (t < 1) { P.rotation.y = t * 14 * (1 - t * .6); P.position.x = dieSpot.x - (q.side || 1) * t * 1.2; flail(.5); }
       else { P.rotation.z = Math.min(1.5, P.rotation.z + dt * 6) * -(q.side || 1); if (!S.stars) { S.stars = true; dizzy(m.head, .7); splash(P.position.x, .1, P.position.z, 0xff3d6e, 18); } }
     } else if (dieKind === "mast") {
       if (t < .2) legs.forEach(l => { l.g.position.z += S.v * dt * .6; }), q.obj.position.z += S.v * dt * .6;
-      else hit("BONK!", "thud");
+      else hit("BONK!", "thud", "crack");
       if (t > .15) { P.rotation.x = Math.min(1.45, P.rotation.x + dt * 6); P.position.z = dieSpot.z - Math.min(1, t) * 1.4; P.position.y = Math.max(0, Math.sin(Math.min(1, t * 2) * Math.PI) * .5); }
       if (t > .7 && !S.stars) { S.stars = true; dizzy(m.head, .7); }
     } else if (dieKind === "pig") {
       const o = q.obj, u = o.userData;
       if (t < .15) o.position.x += (dieSpot.x + q.side * .9 - o.position.x) * Math.min(1, dt * 14);
-      else { hit("OINK!", "thud"); const k = Math.min(t - .15, 1.1);
+      else { hit("OINK!", "thud", "squeal"); const k = Math.min(t - .15, 1.1);
         P.position.set(dieSpot.x - q.side * k * 4.5, Math.max(0, 6 * k - 6 * k * k), dieSpot.z); P.rotation.z = -q.side * k * 6; flail();
         o.position.x -= q.side * 3 * dt * Math.max(0, 1 - k); u.p.position.y = Math.abs(Math.sin(t * 16)) * .2;
         if (k >= 1.1 && !S.stars) { S.stars = true; P.rotation.set(0, 0, -q.side * 1.5); splash(P.position.x, .05, P.position.z, 0xfff4dc, 14); dizzy(m.head, .7); } }
@@ -1860,7 +1944,7 @@ window.__boot = function () {
     if (S.tut) tutTick(dt); else owlBrain(dt);
     S.lane += (S.target - S.lane) * Math.min(1, 12 * dt); S.lean += ((S.target - S.lane) - S.lean) * Math.min(1, 10 * dt);
     if (S.swing > 0) { S.swing = Math.max(0, S.swing - dt * 1.1); S.h = Math.sin((1 - S.swing) * Math.PI) * 2.4; S.vy = 0; }   // vine swing carries you over the gap
-    else { S.vy -= 28 * dt; S.h += S.vy * dt; if (S.h <= 0) { if (S.vy < -6) { S.landT = 0; dust(S.lane * LW, 0, 7); } S.h = 0; S.vy = 0; } }
+    else { S.vy -= 28 * dt; S.h += S.vy * dt; if (S.h <= 0) { if (S.vy < -6) { S.landT = 0; dust(S.lane * LW, 0, 7); sfx("land"); } S.h = 0; S.vy = 0; } }
     S.landT += dt; S.takeT += dt; S.mapDist[leg.theme] = (S.mapDist[leg.theme] || 0) + sp * dt;
     if (S.slide > 0) S.slide -= dt;
     legs.forEach(l => { l.g.position.z += sp * dt; });
@@ -1925,6 +2009,7 @@ window.__boot = function () {
       m.torso.rotation.y = s * .22; m.torso.rotation.x = -.16; m.head.rotation.y = -s * .12; m.head.rotation.x = .1;
     }
     if (m.hair) m.hair.rotation.x = -(Math.sin(S.t * 12) * .1 + .35);
+    const sp2 = Math.floor(S.t * 12 / Math.PI); if (sp2 !== S.stepPh) { S.stepPh = sp2; if (run && !air && !sl && S.swing <= 0) step(leg.theme); }   // a footstep on each foot plant
     m.g.rotation.x = sl ? 1.3 : 0; m.g.position.y = sl ? .22 : 0;
     { const land = Math.max(0, 1 - S.landT / .2), take = Math.max(0, 1 - S.takeT / .22), q = land * .22 - take * .14;   // squash on landing, stretch on takeoff
       m.g.scale.set(m.sc * (1 + q * .8), m.sc * (1 - q), m.sc * (1 + q * .8)); }
@@ -1947,7 +2032,7 @@ window.__boot = function () {
     o.st = act; o.t = 0; o.lane = Math.round(S.target);
     if (act === "swoop") { S.gap = Math.max(.1, S.gap - .15); creepSfx(); hoot(); buzz(20); }
     else if (act === "feint") { hoot(); }
-    else if (act === "dive") { creepSfx(); owlSay("Dodge the dive!"); buzz([15, 40, 15]); }
+    else if (act === "dive") { creepSfx(); sfx("screech"); owlSay("Dodge the dive!"); buzz([15, 40, 15]); }
   }
   function endOwlMove() { const o = S.owl, b = bold(); o.st = "chase"; o.t = 0; o.next = S.t + Math.max(6, 16 - b * 8) + R() * 5; tgtRing.visible = false; owl.rotation.set(0, 0, 0); }
   // the dive: a red target appears on your lane, the owl climbs ahead, then plunges; be elsewhere when it lands
@@ -1962,10 +2047,11 @@ window.__boot = function () {
     const B = S.boss; B.t += dt;
     if (B.t > 15) { S.boss = null; tgtRing.visible = false; S.bonus += 200; S.gap = .9; S.bossAt = S.dist + 2000; endOwlMove();
       zone.textContent = "Owl retreats! +200"; S.zoneT = 2.4; sfx("ok"); buzz([20, 40, 20]); return; }
-    if (B.dive == null && B.t > B.nextDive) { B.dive = 0; B.lane = Math.round(S.target); B.dives++; buzz(15); }
+    if (B.dive == null && B.t > B.nextDive) { B.dive = 0; B.lane = Math.round(S.target); B.dives++; buzz(15); sfx("screech"); }
     if (B.dive != null) { B.dive += dt; const tele = Math.max(.6, 1 - B.dives * .04);
+      if (B.dive > tele - .3 && !B.whistle) { B.whistle = true; sfx("dive"); }
       if (B.dive > tele && !B.hit) { B.hit = true; diveStrike(B.lane); }
-      if (B.dive > tele + .6) { B.dive = null; B.hit = false; B.nextDive = B.t + Math.max(1, 2.2 - B.dives * .08); tgtRing.visible = false; } }
+      if (B.dive > tele + .6) { B.dive = null; B.hit = false; B.whistle = false; B.nextDive = B.t + Math.max(1, 2.2 - B.dives * .08); tgtRing.visible = false; } }
   }
   function poseOwl(dt) {
     const g = S.gap, z = 2.4 + g * 8, o = S.owl, lx = S.lane * LW;
@@ -1987,13 +2073,13 @@ window.__boot = function () {
         owl.position.set(lx, a * 2.2, z - a * (z - 1.2)); flap(1.2); if (k >= 1) endOwlMove(); }
       else if (o.st === "stalk") {   // drops out of sight and goes quiet... then strikes from above
         if (t < 3.5) { owl.position.z += (16 - owl.position.z) * Math.min(1, dt * 2); owl.position.y = 0; }
-        else { o.st = "dive"; o.t = 0; o.lane = Math.round(S.target); creepSfx(); owlSay("Dodge the dive!"); buzz([15, 40, 15]); }
+        else { o.st = "dive"; o.t = 0; o.lane = Math.round(S.target); creepSfx(); sfx("screech"); owlSay("Dodge the dive!"); buzz([15, 40, 15]); }
       }
       else if (o.st === "dive") { const tele = Math.max(.8, 1.3 - bold() * .4);
         if (t < tele) { const k = t / tele; ring(o.lane, -1.5, k); owl.position.set(o.lane * LW, 1.5 + k * 3.5, z + (-6 - z) * Math.min(1, k * 1.5)); owl.rotation.y = Math.PI; flap(); }
-        else { const d = Math.min(1, (t - tele) / .3); ring(o.lane, -1.5, 1); owl.position.set(o.lane * LW, 5 - d * 4.4, -6 + d * 4.5); flap(.3);
+        else { if (!o.whistle) { o.whistle = true; sfx("dive"); } const d = Math.min(1, (t - tele) / .3); ring(o.lane, -1.5, 1); owl.position.set(o.lane * LW, 5 - d * 4.4, -6 + d * 4.5); flap(.3);
           if (d >= 1 && !o.hit) { o.hit = true; diveStrike(o.lane); }
-          if (t > tele + .9) { o.hit = false; endOwlMove(); } }
+          if (t > tele + .9) { o.hit = false; o.whistle = false; endOwlMove(); } }
       }
       return;
     }
@@ -2034,7 +2120,7 @@ window.__boot = function () {
   }
   function drawHud() {
     const d = Math.floor(S.dist + S.bonus), ow = Math.round((1 - Math.max(0, S.gap)) * 100);
-    if (d !== hudV.d) { if (hudV.d != null && Math.floor(d / 250) > Math.floor(hudV.d / 250)) { distEl.classList.remove("tick"); void distEl.offsetWidth; distEl.classList.add("tick"); buzz(8); }
+    if (d !== hudV.d) { if (hudV.d != null && Math.floor(d / 250) > Math.floor(hudV.d / 250)) { distEl.classList.remove("tick"); void distEl.offsetWidth; distEl.classList.add("tick"); buzz(8); sfx("ding"); }
       hudV.d = d; distEl.innerHTML = d + "<small>m</small>"; }
     if (best !== hudV.b) { hudV.b = best; hbest.textContent = "Best " + best + " m"; }
     if (ow !== hudV.ow) { hudV.ow = ow; owlFill.style.width = ow + "%"; }
@@ -2058,7 +2144,12 @@ window.__boot = function () {
         s.position.x += ([0, -1.35, 1.35][rel] - s.position.x) * e; s.position.z += ([-.5, .55, .55][rel] - s.position.z) * e; s.rotation.y += ([0, -.3, .3][rel] - s.rotation.y) * e; }); }
     else if (mode === "dying") { S.t += rdt; updateDeath(rdt); if (S.q && S.q.kind === "crab" && dieKind !== "crab") updateQte(rdt, 0); }
     else if (mode === "over") { S.t += rdt; }
-    updateFxList(rdt);
+    updateFxList(rdt); ambTick(rdt);
+    if (mode === "run") {
+      if ((S.q && S.q.phase === "prompt") || (S.tq && S.tq.phase === "prompt")) { S.hbT = (S.hbT || 0) - rdt; if (S.hbT <= 0) { sfx("heart"); S.hbT = .72; } } else S.hbT = 0;   // heartbeat in slow motion
+      const near = S.owl.st !== "chase" || S.boss || S.gap < .35;
+      if (near) { S.flapT = (S.flapT || 0) - rdt; if (S.flapT <= 0) { sfx("flap", S.boss || S.owl.st !== "chase" ? 1 : (.35 - S.gap) * 3 + .3); S.flapT = .3; } }
+    }
     birds.forEach(b => { const u = b.userData; b.position.x += u.vx * rdt; if (Math.abs(b.position.x) > 55) b.position.x *= -.98;
       const f = Math.sin(now * 9 + u.ph) * .5; u.w[0].rotation.z = f; u.w[1].rotation.z = -f; });
     camYaw += (0 - camYaw) * (1 - Math.exp(-5 * rdt)); sky.rotation.y = camYaw;
@@ -2174,7 +2265,7 @@ window.__boot = function () {
     const unlocked = []; ORDER.forEach(k => OUTFITS[k].forEach(([, name, req]) => { if (req > prev && req <= best) unlocked.push(name + " (" + INFO[k][0] + ")"); }));
     MAPS.forEach(([, , name, req]) => { if (req > prev && req <= best) unlocked.unshift(name + " map"); });
     const j = JOKES[dieKind] || JOKES.wall; $("otitle").textContent = j[0]; $("ojoke").textContent = pickOf(j[1]);
-    saveRun(d); countUp($("odist"), d); $("obest").textContent = best; $("onew").classList.toggle("hidden", !isBest); $("onew").textContent = unlocked.length ? "New best! Unlocked: " + unlocked.join(", ") : "New best!";
+    saveRun(d); countUp($("odist"), d); if (unlocked.length) setTimeout(() => sfx("fanfare"), 500); else if (isBest) setTimeout(() => sfx("chime"), 500); $("obest").textContent = best; $("onew").classList.toggle("hidden", !isBest); $("onew").textContent = unlocked.length ? "New best! Unlocked: " + unlocked.join(", ") : "New best!";
     const ot = $("otitle"); ot.style.animation = "none"; void ot.offsetWidth; ot.style.animation = "";
     mode = "over"; hud.classList.add("hidden"); over.classList.remove("hidden"); $("again").focus();
   }
@@ -2192,10 +2283,10 @@ window.__boot = function () {
     const jz = jzNow();
     if (S.tq && S.tq.phase === "prompt") { turnInput(d); if (S.pending && jz >= -.4) doTurn(d); return; }   // near a junction, left/right means turn
     if (jz > -24 && jz < 2.6) { if (leg.allowed.includes(d)) { S.pending = d; if (jz >= -.4) doTurn(d); } return; }
-    const nt = Math.max(-1, Math.min(1, S.target + d)); if (nt !== S.target) { S.laneT = S.t; if (S.tut) S.tut.lanes++; } S.target = nt;
+    const nt = Math.max(-1, Math.min(1, S.target + d)); if (nt !== S.target) { S.laneT = S.t; sfx("swoosh"); if (S.tut) S.tut.lanes++; } S.target = nt;
   };
-  const jump = () => { if (mode !== "run") return; if (S.q && S.q.phase === "prompt") return qteInput("jump"); if (S.h === 0 && S.swing <= 0) { S.vy = 10; S.slide = 0; S.takeT = 0; } };
-  const slide = () => { if (mode !== "run") return; if (S.q && S.q.phase === "prompt") return qteInput("slide"); S.slide = .7; S.slideT = S.t; if (S.h > 0) S.vy = Math.min(S.vy, -12); };
+  const jump = () => { if (mode !== "run") return; if (S.q && S.q.phase === "prompt") return qteInput("jump"); if (S.h === 0 && S.swing <= 0) { S.vy = 10; S.slide = 0; S.takeT = 0; sfx("hop"); } };
+  const slide = () => { if (mode !== "run") return; if (S.q && S.q.phase === "prompt") return qteInput("slide"); S.slide = .7; S.slideT = S.t; sfx("swish"); if (S.h > 0) S.vy = Math.min(S.vy, -12); };
   addEventListener("keydown", e => {
     const k = e.code;
     if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(k)) e.preventDefault();
