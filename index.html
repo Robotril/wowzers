@@ -260,7 +260,7 @@
   <div id="hud" class="hidden">
     <div id="dist" class="display">0<small>m</small></div>
     <div id="hudbest">Best 0 m</div>
-    <div id="owlrow"><svg class="i"><use href="#i-owl"/></svg><div id="owlbar"><div id="owlfill"></div></div></div>
+    <div id="owlrow" role="img" aria-label="How close the Chickcharney is"><svg class="i"><use href="#i-owl"/></svg><div id="owlbar"><div id="owlfill"></div></div></div>
   </div>
   <div id="hint" class="display hidden"></div>
   <div id="zone" class="display"></div>
@@ -287,7 +287,7 @@
   <div id="menu">
     <div class="brand">
       <h1 class="logo display" aria-label="Island Dash"><span class="w" id="lw1" aria-hidden="true">Island</span><span class="w gold" id="lw2" aria-hidden="true">Dash</span></h1>
-      <p class="tag">Outrun the owl. Survive the islands.</p>
+      <p class="tag">Outrun the Chickcharney. Survive the islands.</p>
       <div class="bestpill"><svg class="i"><use href="#i-flag"/></svg><span id="mbest">Best 0 m</span></div>
     </div>
     <div class="panel">
@@ -330,7 +330,7 @@
   </aside>
   <div id="over" class="hidden" role="dialog" aria-labelledby="otitle">
     <div class="sheet">
-      <h2 id="otitle" class="display">Owl-ed Over</h2>
+      <h2 id="otitle" class="display">Caught!</h2>
       <p id="ojoke"></p>
       <span id="onew" class="hidden">New best!</span>
       <div class="ostats"><div><b id="odist">0</b><span>meters</span></div><div><b id="obest">0</b><span>best</span></div></div>
@@ -1836,7 +1836,7 @@ window.__boot = function () {
     const g = new T.Group();
     mesh(B(6.8, .06, 6), new T.MeshPhongMaterial({ color: 0x1f3326, shininess: 80, specular: 0x88aa99 }), 0, .12, 0, g);              // murky water in the broken boardwalk
     for (const s of [-1, 1]) for (let i = 0; i < 5; i++) mesh(B(.6 + R() * .5, .07, .5), 0x7d5a38, -2.6 + i * 1.3, .1, s * (2.9 + R() * .3), g).rotation.y = R() * .4 - .2;
-    const vine = pivot(g, 0, 7.2); vine.position.z = 2.8; g.userData.vine = vine;
+    const vine = pivot(g, 0, 7.6); vine.position.z = 0; g.userData.vine = vine;
     for (let i = 0; i < 6; i++) { mesh(cap(.08, .07, .8), 0x4e7a2e, 0, -i * .8, 0, vine); if (i % 1 === 0) { const lf = mesh(flat([[0, 0], [.15, .1, .3, 0], [.15, -.1, 0, 0]], .01, .01), 0x5fa040, .05, -i * .8 - .3, 0, vine); lf.rotation.y = R() * 3; } }
     return g;
   }
@@ -1878,7 +1878,7 @@ window.__boot = function () {
     legs.forEach(l => killObj(l.g)); legs = []; if (S && S.nextLeg) killObj(S.nextLeg.g);
     obs.forEach(dropObs); obs = []; if (S && S.q && S.q.obj) scene.remove(S.q.obj); clearFx();
     S = { dist: 0, v: 14, lane: 0, target: 0, h: 0, vy: 0, slide: 0, t: 0, lean: 0, gap: .6, inv: 0, slow: 0, shake: 0, pending: 0, waterZ: 0, sink: 0,
-          legT: 0, zoneT: 0, nextLeg: null, nextTheme: "beach", ts: 1, q: null, qAt: 70 + R() * 40, swing: 0, tq: null, legJob: null, bonus: 0, combo: 0, nmLast: -9, nmTotal: 0, landT: 9, takeT: 9, fovKick: 0, mapDist: {}, qWins: 0, laneT: -9, slideT: -9, nmSlow: 0, owl: { st: "chase", t: 0, next: 11 + R() * 5 }, boss: null, bossAt: 2000, cyc: .05 };
+          legT: 0, zoneT: 0, nextLeg: null, nextTheme: "beach", ts: 1, q: null, qAt: 70 + R() * 40, swing: 0, hang: null, hangA: 0, tq: null, legJob: null, bonus: 0, combo: 0, nmLast: -9, nmTotal: 0, landT: 9, takeT: 9, fovKick: 0, mapDist: {}, qWins: 0, laneT: -9, slideT: -9, nmSlow: 0, owl: { st: "chase", t: 0, next: 11 + R() * 5 }, boss: null, bossAt: 2000, cyc: .05 };
     dcam = null; if (typeof tgtRing !== "undefined") tgtRing.visible = false;
     const qTheme = new URLSearchParams(location.search).get("theme");
     leg = makeLeg(tutorial ? 250 : 130, 14, qTheme in THEMES ? qTheme : previewTheme && mode === "menu" ? previewTheme : THEMES[mapSel] && mapOpen(mapSel) ? mapSel : pickOf(openThemes())); scene.add(leg.g); legs.push(leg); if (!tutorial) populate(-40, jzNow() + 24); seedSharks(); camYaw = 0; pYaw = 0;
@@ -1986,17 +1986,31 @@ window.__boot = function () {
     S.q = { kind, need, obj, side, open, lane, z0: obj.position.z, phase: "prompt", t: 0 }; S.ts = .32 + Math.min(.22, S.dist * .00007);   // less slow motion the further you get
     showPrompt(need, def.label(need === "left" ? -1 : 1)); buzz(18); S.zoneT = 0; S.qZoom = 1;
   }
+  // Quick-time events are physical: your input moves you, and what happens is decided by where you are when the threat arrives.
   function qteInput(a) {
     const q = S.q; if (!q || q.phase !== "prompt") return false;
-    if (a !== q.need) { qteFail(); return true; }
+    if (a === "left" || a === "right") { const nt = Math.max(-1, Math.min(1, Math.round(S.target) + (a === "left" ? -1 : 1))); if (nt !== S.target) { S.target = nt; S.laneT = S.t; sfx("swoosh"); } }
+    else if (a === "jump") {
+      if (q.kind === "vine") { if (!q.grabReq) { q.grabReq = true; sfx("hop"); qLabel.textContent = "Reach!"; } }      // you reach for the vine; you catch it when you get to it
+      else if (q.kind === "crab" || q.kind === "mast") q.buffer = "jump";                                                  // a slightly early jump is held until the right moment
+      else if (S.h === 0) { S.vy = 10; S.takeT = 0; sfx("hop"); }
+    }
+    else if (a === "slide") { if (q.kind === "banner") q.buffer = "slide"; else { S.slide = .7; S.slideT = S.t; sfx("swish"); } }
+    return true;
+  }
+  function qteWin(q) {
     q.phase = "ok"; q.t = 0; S.ts = 1; S.qWins++; qEl.classList.add("ok"); qLabel.textContent = pickOf(["Nice!", "Smooth!", "Too easy!", "Clean!"]); sfx("chime"); buzz(12);
     setTimeout(() => qEl.classList.add("hidden"), 650);
-    if (q.kind === "shark" || q.kind === "car" || q.kind === "pig") S.target = Math.max(-1, Math.min(1, Math.round(S.target) + (a === "left" ? -1 : 1)));
-    else if (q.kind === "crab" || q.kind === "mast") { S.vy = 13; S.h = Math.max(S.h, .01); sfx("whoosh"); }
-    else if (q.kind === "banner") { S.slide = 1.1; sfx("whoosh"); }
-    else { S.swing = 1; S.h = .01; sfx("whoosh"); }
     S.qAt = S.dist + Math.max(55, 95 - S.dist * .01) + R() * 60;   // events come round more often as the run goes on
-    return true;
+  }
+  function qteContact(q) {   // the threat has reached you: are you somewhere safe?
+    const lane = Math.round(S.lane);
+    const safe = q.kind === "shark" || q.kind === "pig" ? lane !== q.lane
+               : q.kind === "car" ? lane === q.open
+               : q.kind === "crab" ? (S.h > .45 || lane !== q.lane)
+               : q.kind === "mast" ? S.h > .45
+               : q.kind === "banner" ? S.slide > 0 : false;
+    if (safe) qteWin(q); else qteFail();
   }
   function startTurnQ() {
     const al = leg.allowed, both = al.length > 1, d = al[0];
@@ -2040,14 +2054,27 @@ window.__boot = function () {
     } else if (q.kind === "mast") {
       const a = Math.min(1, Math.pow(p * 1.25, 2.2)); u.p.rotation.z = q.side * a * PI2;
       if (a >= 1 && !q.landed) { q.landed = true; sfx("thud"); S.shake = .25; buzz(15); }
-    } else { u.vine.rotation.x = q.phase === "ok" ? Math.min(.9, u.vine.rotation.x + dt * 1.6) : Math.sin(S.t * 1.5) * .12; }
-    if (q.phase === "prompt" && p >= 1) qteFail();
+    } else {   // vine: once you reach it you hang from its tip and swing across the gap like a pendulum, letting go on the far side
+      const L = 4.8, pz = o.position.z;
+      if (!q.grab && q.phase !== "fail") {
+        u.vine.rotation.x = Math.sin(S.t * 1.5) * .12;
+        if (q.grabReq && pz > -3.6 && pz < 3) { q.grab = true; u.vine.position.x = Math.round(S.lane) * LW; S.target = Math.round(S.lane); S.swing = 1; sfx("whoosh"); buzz(15); if (q.phase === "prompt") qteWin(q); }
+      }
+      if (q.grab) { const th = Math.asin(Math.max(-1, Math.min(1, pz / L))); u.vine.rotation.x = th; S.hang = Math.max(.2, 7.6 - L * Math.cos(th) - 2.25); S.hangA = th;
+        if (pz > 3.6) { q.grab = false; q.released = true; S.swing = 0; S.hang = null; S.vy = 5; } }
+      else if (q.released) u.vine.rotation.x += (0 - u.vine.rotation.x) * Math.min(1, dt * 2);
+    }
+    if (q.phase === "prompt") {
+      if (q.buffer === "jump" && p >= .55 && S.h === 0) { q.buffer = null; S.vy = 11.5; S.slide = 0; S.takeT = 0; sfx("hop"); }
+      if (q.buffer === "slide" && p >= .7) { q.buffer = null; S.slide = 1.2; S.slideT = S.t; sfx("swish"); }
+      if (p >= 1) { if (q.kind === "vine") qteFail(); else qteContact(q); }
+    }
     if (q.phase === "ok" && o.position.z > 16) { scene.remove(o); S.q = null; }
   }
 
   /* ---------- deaths: each one has its own animation, camera cut and impact word ---------- */
   const JOKES = {
-    owl:    ["Owl Be Seeing You", ["The owl asked “whooo’s slow?” and you answered by being caught.", "Owls can turn their heads 270°. You couldn’t turn on the speed.", "Turns out the owl didn’t want a hug. It wanted takeout."]],
+    owl:    ["Chickcharney’d!", ["Folks on Andros say never cross a Chickcharney. Now you know why.", "The Chickcharney can turn its head all the way round. You couldn’t turn on the speed.", "Legend says a Chickcharney brings bad luck. Today it brought it personally."]],
     wall:   ["Wall: 1, You: 0", ["That wall has stood there for two hundred years. It wasn’t moving for you.", "Bold strategy, sprinting straight into masonry. It did not pay off.", "You found the wall. The wall found you harder."]],
     sea:    ["Splash Down", ["The fish scored your dive a 3 out of 10. Lots of splash, no style.", "Running on water still doesn’t work. Science wins again.", "You wanted a swim. Next time try stopping first."]],
     shark:  ["Snack Attack", ["The shark says it was only a little nibble.", "You went shark-spotting. The shark spotted you first.", "Sharks love fast food, and you were very fast."]],
@@ -2154,7 +2181,7 @@ window.__boot = function () {
     if (S.owl.st !== "stalk") S.gap = Math.min(.9, S.gap + dt * Math.max(.014, .035 - S.dist * .000012));                               // and the owl recovers less ground
     if (S.tut) tutTick(dt); else owlBrain(dt);
     S.lane += (S.target - S.lane) * Math.min(1, 12 * dt); S.lean += ((S.target - S.lane) - S.lean) * Math.min(1, 10 * dt);
-    if (S.swing > 0) { S.swing = Math.max(0, S.swing - dt * 1.1); S.h = Math.sin((1 - S.swing) * Math.PI) * 2.4; S.vy = 0; }   // vine swing carries you over the gap
+    if (S.swing > 0 && S.hang != null) { S.h = S.hang; S.vy = 0; }   // hanging from the vine
     else { S.vy -= 28 * dt; S.h += S.vy * dt; if (S.h <= 0) { if (S.vy < -6) { S.landT = 0; dust(S.lane * LW, 0, 7); sfx("land"); } S.h = 0; S.vy = 0; } }
     S.landT += dt; S.takeT += dt; S.mapDist[leg.theme] = (S.mapDist[leg.theme] || 0) + sp * dt;
     if (S.slide > 0) S.slide -= dt;
@@ -2224,7 +2251,9 @@ window.__boot = function () {
     const m = model, run = mode === "run", s = run ? Math.sin(S.t * 12) : 0, air = S.h > .05, sl = run && S.slide > 0 && !air;
     resetJoints(m);
     const c = run ? Math.cos(S.t * 12) : 0;
-    if (S.swing > 0) { m.arms[0].rotation.set(-2.9, 0, .1); m.arms[1].rotation.set(-2.9, 0, -.1); m.legs[0].rotation.x = .7; m.legs[1].rotation.x = .3; m.knees[0].rotation.x = -.6; m.knees[1].rotation.x = -.9; }
+    if (S.swing > 0) { const a = S.hangA || 0;   // both hands on the vine above, legs trailing the swing
+      m.arms[0].rotation.set(-3.0 - a * .3, 0, .12); m.arms[1].rotation.set(-3.0 - a * .3, 0, -.12); m.elbows[0].rotation.x = m.elbows[1].rotation.x = .15;
+      m.legs[0].rotation.x = .5 - a * .8; m.legs[1].rotation.x = .2 - a * .8; m.knees[0].rotation.x = -.7; m.knees[1].rotation.x = -1.0; m.torso.rotation.x = -a * .4; }
     else if (sl) {   // slide: lean back, lead leg straight out, trailing leg tucked, one hand trailing on the ground
       m.legs[0].rotation.x = 1.45; m.knees[0].rotation.x = -.12; m.feet[0].rotation.x = -.4; m.legs[1].rotation.x = .5; m.knees[1].rotation.x = -1.7;
       m.arms[0].rotation.set(.7, 0, -.5); m.elbows[0].rotation.x = .9; m.arms[1].rotation.set(-.6, 0, .9); m.elbows[1].rotation.x = .2; m.head.rotation.x = -.75; m.torso.rotation.x = .1;
@@ -2280,12 +2309,12 @@ window.__boot = function () {
   function startBoss() {
     S.boss = { t: 0, nextDive: 2, dives: 0 }; tgtRing.visible = false; S.owl.st = "chase";
     obs = obs.filter(o => { if (o.m.position.z > -70) { dropObs(o); return false; } return true; });
-    creepSfx(); hoot(); pow("BOSS!"); zone.textContent = "The owl attacks!"; S.zoneT = 2.4; buzz([40, 60, 40]);
+    creepSfx(); hoot(); pow("BOSS!"); zone.textContent = "The Chickcharney attacks!"; S.zoneT = 2.4; buzz([40, 60, 40]);
   }
   function updateBoss(dt) {
     const B = S.boss; B.t += dt;
     if (B.t > 15) { S.boss = null; tgtRing.visible = false; S.bonus += 200; S.gap = .9; S.bossAt = S.dist + 2000; endOwlMove();
-      zone.textContent = "Owl retreats! +200"; S.zoneT = 2.4; sfx("ok"); buzz([20, 40, 20]); return; }
+      zone.textContent = "Chickcharney retreats! +200"; S.zoneT = 2.4; sfx("ok"); buzz([20, 40, 20]); return; }
     if (B.dive == null && B.t > B.nextDive) { B.dive = 0; B.lane = Math.round(S.target); B.dives++; buzz(15); sfx("screech"); }
     if (B.dive != null) { B.dive += dt; const tele = Math.max(.6, 1 - B.dives * .04);
       if (B.dive > tele - .3 && !B.whistle) { B.whistle = true; sfx("dive"); }
@@ -2494,7 +2523,7 @@ window.__boot = function () {
     else if (tu.step === 1) { tutSay("Swipe ↑ to jump the crate"); if (passed()) { tu.step = 2; tutObs("limbo"); } }
     else if (tu.step === 2) { tutSay("Swipe ↓ to slide under the bar"); if (passed()) { tu.step = 3; tutObs("coral"); } }
     else if (tu.step === 3) { tutSay("Coral can't be jumped. Change lanes!"); if (passed()) { tu.step = 4; tu.t = 0; } }
-    else if (tu.step === 4) { tutSay("Corners are quick-time events: follow the arrow. Now outrun the owl!");
+    else if (tu.step === 4) { tutSay("Corners are quick-time events: follow the arrow. Now outrun the Chickcharney!");
       if (tu.t > 3.2) { tutSay(""); S.tut = null; tutDone = true; try { localStorage.setItem("idTut", "1"); } catch (e) {}
         S.qAt = S.dist + 80; S.owl.next = S.t + 8; S.bossAt = S.dist + 2000; populate(-40, Math.max(jzNow() + 24, -160)); pow("GO!"); } }
   }
