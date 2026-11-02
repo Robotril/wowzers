@@ -472,15 +472,15 @@ window.__boot = function () {
   function step(th) {
     if (muted || !ac) return;
     { const sf = SURF[th] || "road", n = { sand: "step_sand", wood: "step_wood", road: "step_road", reef: "step_sand" }[sf];
-      if (playSample(n, sf === "reef" ? .45 : .65, (sf === "reef" ? .7 : 1) * (.9 + R() * .2))) return; }
+      if (playSample(n, (sf === "reef" ? .14 : .2) * (.85 + R() * .3), (sf === "reef" ? .7 : 1) * (.9 + R() * .2))) return; }   // soft, in the background
     try { const t0 = ac.currentTime, g = ac.createGain(), f = ac.createBiquadFilter(), src = ac.createBufferSource(), sf = SURF[th] || "road";
       src.buffer = noiseBuf; src.playbackRate.value = .8 + R() * .4;
-      if (sf === "sand") { f.type = "lowpass"; f.frequency.value = 850 + R() * 300; aenv(g, t0, .07, .006, .1); }
-      else if (sf === "wood") { f.type = "bandpass"; f.frequency.value = 480 + R() * 160; f.Q.value = 2; aenv(g, t0, .14, .002, .07); }
-      else if (sf === "road") { f.type = "highpass"; f.frequency.value = 1600; aenv(g, t0, .05, .001, .04); }
-      else { f.type = "lowpass"; f.frequency.value = 420; aenv(g, t0, .09, .012, .13); }
+      if (sf === "sand") { f.type = "lowpass"; f.frequency.value = 850 + R() * 300; aenv(g, t0, .025, .006, .1); }
+      else if (sf === "wood") { f.type = "bandpass"; f.frequency.value = 480 + R() * 160; f.Q.value = 2; aenv(g, t0, .045, .002, .07); }
+      else if (sf === "road") { f.type = "highpass"; f.frequency.value = 1600; aenv(g, t0, .018, .001, .04); }
+      else { f.type = "lowpass"; f.frequency.value = 420; aenv(g, t0, .03, .012, .13); }
       src.connect(f); f.connect(g); g.connect(master); src.start(t0, R() * .5); src.stop(t0 + .22);
-      if (sf === "wood") { const o = ac.createOscillator(), og = ac.createGain(); o.frequency.setValueAtTime(140, t0); o.frequency.exponentialRampToValueAtTime(70, t0 + .08); o.connect(og); og.connect(master); aenv(og, t0, .08, .002, .08); o.start(t0); o.stop(t0 + .12); }
+      if (sf === "wood") { const o = ac.createOscillator(), og = ac.createGain(); o.frequency.setValueAtTime(140, t0); o.frequency.exponentialRampToValueAtTime(70, t0 + .08); o.connect(og); og.connect(master); aenv(og, t0, .025, .002, .08); o.start(t0); o.stop(t0 + .12); }
     } catch (e) {}
   }
   // ambient soundscapes: looping noise beds (surf, city rumble, cave air) plus scheduled events per map, and a Junkanoo rhythm
@@ -570,6 +570,7 @@ window.__boot = function () {
   const pivot = (g, x, y) => { const p = new T.Group(); p.position.set(x, y, 0); g.add(p); return p; };
 
   /* ================= post-processing: multisampled scene -> bloom (bright pass + blur at 1/4 res) -> colour grade + vignette ================= */
+  const lite = () => set.gfx === "low" || (set.gfx === "auto" && weakGPU);   // integrated GPUs and Low graphics get the light profile
   const gl2 = renderer.capabilities.isWebGL2, post = { ok: set.gfx === "high" || (set.gfx === "auto" && !weakGPU) };
   const postOn = () => post.ok && set.gfx !== "low";
   const rtOpt = { minFilter: T.LinearFilter, magFilter: T.LinearFilter, format: T.RGBAFormat };
@@ -1046,7 +1047,7 @@ window.__boot = function () {
     const scale = flat([[-.11, 0], [-.1, -.16, 0, -.2], [.1, -.16, .11, 0]], .015, .01);       // feather scallops: chest (pale, barred) and back (dark, layered)
     for (let r = 0; r < 6; r++) for (let i = -3; i <= 3; i++) { const x = i * .13 + (r % 2) * .065; if (Math.abs(x) > .5 - r * .02) continue;
       const f = mesh(scale, r % 2 ? 0xb3a58e : 0x9b8d76, x, 3.42 - r * .2, -.6 - Math.cos(x * 2) * .02 + r * .02, g); f.rotation.y = Math.PI + x * .7; }
-    for (let r = 0; r < 7; r++) for (let i = -4; i <= 4; i++) { const a = i * .3 + (r % 2) * .15, rr = .8 - Math.abs(r - 3) * .04;
+    for (let r = 0; r < 7; r += 2) for (let i = -4; i <= 4; i++) { const a = i * .3 + (r % 2) * .15, rr = .8 - Math.abs(r - 3) * .04;
       const f = mesh(scale, r % 2 ? GRD : GR, Math.sin(a) * rr, 3.75 - r * .22, Math.cos(a) * rr * .86, g); f.rotation.y = a; f.scale.set(1.5, 1.5, 1); }
     const feather = flat([[0, 0], [.2, -.4, .14, -1.5], [.06, -1.95, 0, -2.0], [-.06, -1.95, -.14, -1.5], [-.2, -.4, 0, 0]], .08, .04);
     const fans = [];
@@ -1208,7 +1209,7 @@ window.__boot = function () {
       if (mat.userData.wuv) { const sc = mat.userData.wuv, U = new Float32Array(tot / 3 * 2);
         for (let i = 0, j = 0; i < tot; i += 3, j += 2) { const ny = Math.abs(Nn[i + 1]), nx = Math.abs(Nn[i]); U[j] = (ny > .5 ? Pp[i] : nx > .5 ? Pp[i + 2] : Pp[i]) * sc; U[j + 1] = (ny > .5 ? Pp[i + 2] : Pp[i + 1]) * sc; }
         bg.setAttribute("uv", new T.BufferAttribute(U, 2)); }
-      const mm = new T.Mesh(bg, mat); mm.castShadow = mm.receiveShadow = true; g.add(mm);
+      const mm = new T.Mesh(bg, mat); mm.castShadow = !lite(); mm.receiveShadow = true; g.add(mm);   // on lighter GPUs scenery only receives shadows
     });
   }
   const runAll = it => { let r; while (!(r = it.next()).done); return r.value; };
@@ -1295,7 +1296,7 @@ window.__boot = function () {
       ob.position.set(side * (hs ? 5.2 : 4.5 + R() * 1.4), 0, z - (side > 0 ? 7 : 0)); g.add(ob);
     }
     for (let z = o.back - 8; z > o.jl + 24; z -= rnd(16, 26)) umbrella(g, pickOf([-1, 1]) * rnd(3.7, 4.0), z);
-    for (let z = o.back - 3; z > o.jl + 10; z -= rnd(4, 8)) tuft(g, pickOf([-1, 1]) * rnd(3.6, 5.8), z);
+    for (let z = o.back - 3; z > o.jl + 10; z -= rnd(8, 14)) tuft(g, pickOf([-1, 1]) * rnd(3.6, 5.8), z);
     for (let z = o.back - rnd(10, 30); z > o.jl - 10; z -= rnd(35, 60)) sailboat(g, pickOf([-1, 1]) * rnd(13, 24), z);
     for (let z = o.back; z > o.jl + 14; z -= rnd(3, 6)) { const s = pickOf([-1, 1]);          // shells + starfish along the sand edge
       mesh(S2(rnd(.08, .16)), pickOf([0xffffff, 0xf4a3b4, 0xffd9a0]), s * rnd(3.5, 5.6), .0, z, g).scale.y = .5; }
@@ -1582,7 +1583,7 @@ window.__boot = function () {
     for (let z = o.back; z > o.jl + 8; z -= 1.6) mesh(S2(.08), 0xeadfc4, rnd(-2.5, 2.5), .07, z, g).scale.set(1, .2, 1.6);   // footprints
     for (let z = o.back - 6; z > o.jl + 18; z -= rnd(7, 13)) { const s = pickOf([-1, 1]); pigMesh(g, s * rnd(4, 5.8), z, rnd(.7, 1.1), rnd(0, 6)); }
     for (let z = o.back - 10; z > o.jl - 10; z -= rnd(10, 18)) { const s = pickOf([-1, 1]), p = pigMesh(g, s * rnd(8, 14), z, rnd(.7, 1), rnd(0, 6)); p.position.y = -.85; }   // swimming pigs
-    for (let z = o.back - 3; z > o.jl + 10; z -= rnd(4, 8)) tuft(g, pickOf([-1, 1]) * rnd(3.6, 6), z);
+    for (let z = o.back - 3; z > o.jl + 10; z -= rnd(8, 14)) tuft(g, pickOf([-1, 1]) * rnd(3.6, 6), z);
     for (let z = o.back - 12; z > o.jl + 22; z -= rnd(14, 22)) { const p = palm(); p.position.set(pickOf([-1, 1]) * rnd(5.2, 6.2), 0, z); g.add(p); }
     for (let z = o.back - rnd(10, 30); z > o.jl - 10; z -= rnd(35, 55)) sailboat(g, pickOf([-1, 1]) * rnd(16, 26), z);
   }
@@ -1751,7 +1752,7 @@ window.__boot = function () {
   }
   const confetti = mkPts(260, FEST, .16, [9, 0, 9]), leaves = mkPts(90, [0x6a9e3a, 0x9cbf4a, 0xc9a43a, 0x4f7f2a], .2, [9, 0, 7]), spray = mkPts(120, [0xffffff, 0xe6fbff], .14, [22, -.6, 1.5]);
   function particleTick(dt, th, sp) {
-    const run = (pts, on, f) => { pts.visible = on && set.gfx !== "low"; if (!pts.visible) return; const a = pts.geometry.attributes.position, A = a.array;
+    const run = (pts, on, f) => { pts.visible = on && !lite(); if (!pts.visible) return; const a = pts.geometry.attributes.position, A = a.array;
       for (let i = 0; i < A.length; i += 3) f(A, i); a.needsUpdate = true; };
     const T0 = S.t;
     run(confetti, th === "junk", (A, i) => { A[i + 1] -= dt * (1.2 + (i % 7) * .12); A[i] += Math.sin(T0 * 3 + i) * dt * .6; A[i + 2] += sp * dt;      // confetti drifting down
@@ -2246,7 +2247,7 @@ window.__boot = function () {
     }
     blink(m, dt);
     if (m.hair) m.hair.rotation.x = -(Math.sin(S.t * 12) * .1 + .35);
-    const sp2 = Math.floor(S.t * 12 / Math.PI); if (sp2 !== S.stepPh) { S.stepPh = sp2; if (run && !air && !sl && S.swing <= 0) { step(leg.theme); if (SURF[leg.theme] === "sand" && set.gfx !== "low") dust(S.lane * LW, .2, 1); } }   // a footstep on each foot plant
+    const sp2 = Math.floor(S.t * 12 / Math.PI); if (sp2 !== S.stepPh) { S.stepPh = sp2; if (run && !air && !sl && S.swing <= 0) { step(leg.theme); if (SURF[leg.theme] === "sand" && !lite()) dust(S.lane * LW, .2, 1); } }   // a footstep on each foot plant
     m.g.rotation.x = sl ? 1.05 : 0; m.g.position.y = sl ? .32 : 0;
     { const land = Math.max(0, 1 - S.landT / .2), take = Math.max(0, 1 - S.takeT / .22), q = land * .22 - take * .14;   // squash on landing, stretch on takeoff
       m.g.scale.set(m.sc * (1 + q * .8), m.sc * (1 - q), m.sc * (1 + q * .8)); }
@@ -2337,7 +2338,7 @@ window.__boot = function () {
   const DPR = devicePixelRatio || 1, prMin = DPR >= 2 ? 1.5 : 1;
   let pr = Math.min(DPR, touchDev ? 2.25 : 2), pfT = 0, pfN = 0, pfPrev = 0, budgetK = 1;
   // total pixels drawn per frame: big laptop/desktop screens (or scaled-down displays) would otherwise render millions of pixels
-  const pxBudget = () => (set.gfx === "high" ? 3.2e6 : set.gfx === "low" ? .7e6 : weakGPU ? .9e6 : touchDev ? 2.2e6 : 1.5e6) * budgetK;
+  const pxBudget = () => (set.gfx === "high" ? 3.2e6 : set.gfx === "low" ? .7e6 : weakGPU ? .75e6 : touchDev ? 2.2e6 : 1.5e6) * budgetK;
   const recompile = () => scene.traverse(o => { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => m.needsUpdate = true); });
   function setShadowSize(n) { sun.shadow.mapSize.set(n, n); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
   // graphics setting: Low = small resolution, no shadows or glow; High = sharpest, never steps down; Auto = adapts to your device
@@ -2346,7 +2347,7 @@ window.__boot = function () {
     const sh = set.gfx !== "low", type = set.gfx === "high" ? T.PCFSoftShadowMap : T.PCFShadowMap;
     post.ok = set.gfx === "high" || (set.gfx === "auto" && !weakGPU);
     if (changed && (sh !== renderer.shadowMap.enabled || type !== renderer.shadowMap.type)) { renderer.shadowMap.enabled = sh; renderer.shadowMap.type = type; recompile(); }
-    setShadowSize(set.gfx === "high" ? 2048 : 1024); sun.castShadow = sh; $("vig").classList.toggle("hidden", post.ok || set.gfx === "low"); if (changed) resize();
+    setShadowSize(set.gfx === "high" ? 2048 : lite() ? 512 : 1024); sun.castShadow = sh; $("vig").classList.toggle("hidden", post.ok || set.gfx === "low"); if (changed) resize();
   }
   // Auto: if frames run slower than ~50 fps for a second, shed the most expensive thing left (twice as fast when it's really struggling)
   const perfSteps = [
@@ -2363,7 +2364,7 @@ window.__boot = function () {
     pfT += d; pfN++;
     if (pfT < 1200) return;
     const avg = pfT / pfN; pfT = pfN = 0;
-    if (avg > 19) { let n = avg > 30 ? 2 : 1; for (const st of perfSteps) { if (n <= 0) break; if (st()) n--; } }
+    if (avg > 18) { let n = avg > 28 ? 2 : 1; for (const st of perfSteps) { if (n <= 0) break; if (st()) n--; } }
   }
   function drawHud() {
     const d = Math.floor(S.dist + S.bonus), ow = Math.round((1 - Math.max(0, S.gap)) * 100);
