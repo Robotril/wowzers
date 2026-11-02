@@ -389,7 +389,7 @@ window.__boot = function () {
   function aenv(g, t0, peak, a, d) { g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(peak, t0 + a); g.gain.exponentialRampToValueAtTime(.0008, t0 + a + d); }
   // small synthesized effects: noise through a filter, or a pitched oscillator
   // recorded sounds (generated with ElevenLabs) load from sfx/; anything missing falls back to the synthesized version
-  const SAMPLES = ["step_sand", "step_wood", "fx_splash", "fx_owl_flap"], sbuf = {};
+  const SAMPLES = ["step_sand", "step_wood", "step_road", "fx_splash", "fx_owl_flap"], sbuf = {};
   const SAMPLE_FOR = { splash: ["fx_splash", .9], flap: ["fx_owl_flap", .8], screech: ["fx_owl_screech", .7], growl: ["fx_shark", .9], skid: ["fx_car", .8], crack: ["fx_mast", .9],
                        squeal: ["fx_pig", .8], ooh: ["fx_ooh", .7], hop: ["fx_whoosh", .5] };
   function loadSamples() {
